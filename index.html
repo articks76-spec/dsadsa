@@ -408,10 +408,113 @@
             font-size: 1.1rem;
             line-height: 1.6;
             color: #e6e6e6;
+            position: relative;
+            overflow: hidden;
         }
 
-        .modal-body p {
-            margin-bottom: 15px;
+        /* Стили для слайдера */
+        .modal-slider {
+            position: relative;
+            width: 100%;
+            height: 400px;
+            overflow: hidden;
+        }
+
+        .modal-slide {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            opacity: 0;
+            transform: translateX(50px);
+            transition: opacity 0.5s, transform 0.5s;
+            padding: 10px;
+            overflow-y: auto;
+        }
+
+        .modal-slide.active {
+            opacity: 1;
+            transform: translateX(0);
+        }
+
+        .modal-slide h3 {
+            color: #ff6666;
+            margin: 20px 0 10px;
+            font-size: 1.4rem;
+        }
+
+        .modal-slide ul {
+            padding-left: 20px;
+            margin-bottom: 20px;
+        }
+
+        .modal-slide li {
+            margin-bottom: 8px;
+            color: #ffcc99;
+        }
+
+        /* Кнопки навигации слайдера */
+        .slider-nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 20px;
+            padding-top: 20px;
+            border-top: 1px solid rgba(255, 0, 0, 0.2);
+        }
+
+        .slider-btn {
+            background: rgba(139, 0, 0, 0.5);
+            border: 1px solid rgba(255, 0, 0, 0.3);
+            color: #ff9999;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            font-size: 1.2rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s;
+        }
+
+        .slider-btn:hover {
+            background: rgba(139, 0, 0, 0.8);
+            color: #ffcc00;
+        }
+
+        .slider-btn:disabled {
+            opacity: 0.3;
+            cursor: not-allowed;
+        }
+
+        .slider-dots {
+            display: flex;
+            gap: 10px;
+        }
+
+        .slider-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: rgba(139, 0, 0, 0.3);
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .slider-dot.active {
+            background: #ff3333;
+            transform: scale(1.2);
+        }
+
+        .slider-dot:hover {
+            background: #ff6666;
+        }
+
+        .slide-counter {
+            color: #ff9999;
+            font-size: 0.9rem;
         }
 
         /* Футер */
@@ -463,6 +566,10 @@
             .new-year-title::before, .new-year-title::after {
                 font-size: 1.5rem;
             }
+            
+            .modal-slider {
+                height: 350px;
+            }
         }
 
         @media (max-width: 480px) {
@@ -487,6 +594,10 @@
             
             .new-year-title::before, .new-year-title::after {
                 display: none;
+            }
+            
+            .modal-slider {
+                height: 300px;
             }
         }
     </style>
@@ -636,7 +747,7 @@
         </div>
     </div>
 
-    <!-- Модальное окно загрузки -->
+    <!-- Модальное окно загрузки со слайдером -->
     <div class="modal" id="downloadModal">
         <div class="modal-content">
             <div class="modal-header">
@@ -644,48 +755,129 @@
                 <button class="close-modal" id="closeDownloadModal">&times;</button>
             </div>
             <div class="modal-body">
-                <p>Для подключения к проекту Real Russia необходимо скачать и установить <strong>Server Connect</strong> - специальный клиент для подключения к нашему серверу.</p>
-                
-                <div style="background: rgba(60, 0, 0, 0.5); padding: 20px; border-radius: 10px; margin: 25px 0; border: 1px solid rgba(255, 0, 0, 0.2);">
-                    <h3 style="color: #ffcc00; margin-bottom: 15px; text-align: center;"><i class="fas fa-gifts"></i> В комплекте с клиентом:</h3>
-                    <ul style="padding-left: 20px;">
-                        <li>Server Connect - клиент для подключения</li>
-                        <li>Полный тутор по установке</li>
-                    </ul>
-                </div>
-                
-                <p style="color: #ff9999; font-style: italic; margin-bottom: 20px;">⚠️ Внимание: Для работы клиента необходимо иметь предустановленный Radmir RP.</p>
-
-                
-                <p>После скачивания и установки следуйте инструкциям в руководстве для успешного подключения к серверу.</p>
-                <P>Рекомендуемые системные требования:<p>
-                <p>°Windows: XP/Vista/Windows 7.<p>
-                <p>°Процессор: Intel Core 2 Quad 2.4GHz.<p>
-                <p>°Видеокарта: 3Гб RAM NVidia 8800GT 512 Мб видеопамяти или выше 16 бит.<p>
-                <p> °DirectX: DirectX 9.0 или выше. <p>
-                <p> °Место на диске: 10 Гб на жeстком диске. <p>
-
-                <div style="text-align: center; margin-top: 30px;">
-                    <a href="https://disk.yandex.ru/d/huUovprcippWRw" target="_blank" class="btn btn-download" style="display: inline-flex; text-decoration: none; font-size: 1.2rem; padding: 18px 35px;">
-                        <i class="fas fa-download"></i> Скачать Server Connect + Tutorial
-                    </a>
-                    <p style="margin-top: 15px; color: #cc9999; font-size: 0.9rem;">Ссылка откроется в новом окне (Яндекс.Диск)</p>
-                </div>
-
-           <!-- ВИДЕО-ТУТОРИАЛ ПО СКАЧИВАНИЮ -->
-            <div style="margin: 35px 0; text-align: center;">
-                <h3 style="color: #ffcc00; margin-bottom: 20px; font-size: 1.4rem;">
-                    <i class="fas fa-film"></i> Видео-инструкция по установке
-                    <i style="color: #ff9999; font-size: 0.9rem;"> Если не грузит такой же ролик в архиве, Либо воспользуйтесь VPN
-                </h3>
-                <div style="background: rgba(0,0,0,0.3); padding: 15px; border-radius: 10px; border: 1px solid rgba(255,0,0,0.2);">
-
-            <iframe width="560" height="315" src="https://www.youtube.com/embed/rjCdqZ8xCdU?si=pAbBFDhv7TsVPsV-" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
+                <div class="modal-slider" id="modalSlider">
+                    <!-- Слайд 1: Основная информация -->
+                    <div class="modal-slide active" id="slide1">
+                        <h3>Основная информация о скачивании</h3>
+                        <p>Для подключения к проекту Real Russia необходимо скачать и установить <strong>Server Connect</strong> - специальный клиент для подключения к нашему серверу.</p>
+                        
+                        <div style="background: rgba(60, 0, 0, 0.5); padding: 20px; border-radius: 10px; margin: 25px 0; border: 1px solid rgba(255, 0, 0, 0.2);">
+                            <h3 style="color: #ffcc00; margin-bottom: 15px; text-align: center;"><i class="fas fa-gifts"></i> В комплекте с клиентом:</h3>
+                            <ul style="padding-left: 20px;">
+                                <li>Server Connect - клиент для подключения</li>
+                                <li>Полный тутор по установке</li>
+                                <li>Скриншоты интерфейса</li>
+                                <li>FAQ по устранению проблем</li>
+                            </ul>
+                        </div>
+                        
+                        <p style="color: #ff9999; font-style: italic; margin-bottom: 20px;">⚠️ Внимание: Для работы клиента необходимо иметь предустановленный Radmir RP.</p>
+                        
+                        <div style="text-align: center; margin-top: 30px;">
+                            <a href="https://disk.yandex.ru/d/huUovprcippWRw" target="_blank" class="btn btn-download" style="display: inline-flex; text-decoration: none; font-size: 1.2rem; padding: 18px 35px;">
+                                <i class="fas fa-download"></i> Скачать Server Connect + Tutorial
+                            </a>
+                            <p style="margin-top: 15px; color: #cc9999; font-size: 0.9rem;">Ссылка откроется в новом окне (Яндекс.Диск)</p>
+                        </div>
+                        
+                        <p style="margin-top: 30px; font-size: 0.9rem; color: #ff9999; text-align: center;">
+                            <i class="fas fa-arrow-right"></i> Используйте кнопки ниже или стрелки клавиатуры для листания
+                        </p>
+                    </div>
                     
+                    <!-- Слайд 2: Системные требования -->
+                    <div class="modal-slide" id="slide2">
+                        <h3>Системные требования</h3>
+                        <p>Для комфортной игры на проекте Real Russia рекомендуем следующие системные требования:</p>
+                        
+                        <h3><i class="fas fa-laptop"></i> Минимальные требования:</h3>
+                        <ul>
+                            <li><strong>ОС:</strong> Windows XP/Vista/7</li>
+                            <li><strong>Процессор:</strong> Intel Core 2 Quad 2.4GHz</li>
+                            <li><strong>Оперативная память:</strong> 3Гб RAM</li>
+                            <li><strong>Видеокарта:</strong> NVidia 8800GT 512 Мб</li>
+                            <li><strong>DirectX:</strong> версии 9.0 или выше</li>
+                            <li><strong>Место на диске:</strong> 10 Гб свободного места</li>
+                        </ul>
+                        
+                        <h3><i class="fas fa-desktop"></i> Рекомендуемые требования:</h3>
+                        <ul>
+                            <li><strong>ОС:</strong> Windows 10/11 (64-bit)</li>
+                            <li><strong>Процессор:</strong> Intel Core i5 или AMD Ryzen 5</li>
+                            <li><strong>Оперативная память:</strong> 8Гб RAM</li>
+                            <li><strong>Видеокарта:</strong> NVIDIA GeForce GTX 1050 или выше</li>
+                            <li><strong>DirectX:</strong> версии 11 или выше</li>
+                            <li><strong>Место на диске:</strong> 20 Гб свободного места</li>
+                        </ul>
+                        
+                        <h3><i class="fas fa-network-wired"></i> Сетевые требования:</h3>
+                        <ul>
+                            <li><strong>Интернет-соединение:</strong> Минимум 10 Мбит/с</li>
+                            <li><strong>Пинг:</strong> Желательно до 100 мс</li>
+                            <li><strong>Стабильность:</strong> Постоянное соединение</li>
+                        </ul>
+                        
+                        <p style="margin-top: 30px; padding: 15px; background: rgba(255, 0, 0, 0.1); border-radius: 10px; border-left: 3px solid #ff3333;">
+                            <strong>Примечание:</strong> Требования могут меняться в зависимости от обновлений проекта и модов.
+                        </p>
+                    </div>
+                    
+                    <!-- Слайд 3: Видео-инструкция -->
+                    <div class="modal-slide" id="slide3">
+                        <h3>Видео-инструкция по установке</h3>
+                        <p>Посмотрите подробную видео-инструкцию по установке и настройке Server Connect для проекта Real Russia.</p>
+                        
+                        <div style="margin: 35px 0; text-align: center;">
+                            <h3 style="color: #ffcc00; margin-bottom: 20px; font-size: 1.4rem;">
+                                <i class="fas fa-film"></i> Видео-инструкция по установке
+                            </h3>
+                            <p style="color: #ff9999; margin-bottom: 15px; font-size: 0.9rem;">
+                                Если видео не загружается, воспользуйтесь VPN или скачайте видео-инструкцию из архива
+                            </p>
+                            
+                            <div style="background: rgba(0,0,0,0.3); padding: 15px; border-radius: 10px; border: 1px solid rgba(255,0,0,0.2);">
+                                <iframe width="100%" height="315" src="https://www.youtube.com/embed/rjCdqZ8xCdU?si=pAbBFDhv7TsVPsV-" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
+                            </div>
+                        </div>
+                        
+                        <h3>Шаги установки:</h3>
+                        <ol style="padding-left: 20px; margin-bottom: 20px;">
+                            <li>Скачайте архив с Server Connect</li>
+                            <li>Распакуйте архив в отдельную папку</li>
+                            <li>Запустите файл установки</li>
+                            <li>Следуйте инструкциям мастера установки</li>
+                            <li>Запустите Server Connect после установки</li>
+                            <li>Настройте параметры подключения (если требуется)</li>
+                            <li>Нажмите "Подключиться"</li>
+                        </ol>
+                        
+                        <p style="padding: 15px; background: rgba(255, 204, 0, 0.1); border-radius: 10px; border-left: 3px solid #ffcc00;">
+                            <strong>Совет:</strong> Добавьте папку с игрой и клиентом в исключения антивируса для предотвращения ложных срабатываний.
+                        </p>
+                    </div>
+                </div>
+                
+                <!-- Навигация слайдера -->
+                <div class="slider-nav">
+                    <button class="slider-btn" id="prevSlide" title="Предыдущая страница (Стрелка влево)">
+                        <i class="fas fa-chevron-left"></i>
+                    </button>
+                    
+                    <div class="slider-dots">
+                        <span class="slider-dot active" data-slide="0"></span>
+                        <span class="slider-dot" data-slide="1"></span>
+                        <span class="slider-dot" data-slide="2"></span>
+                    </div>
+                    
+                    <span class="slide-counter">Страница <span id="currentSlide">1</span> из 3</span>
+                    
+                    <button class="slider-btn" id="nextSlide" title="Следующая страница (Стрелка вправо)">
+                        <i class="fas fa-chevron-right"></i>
+                    </button>
+                </div>
             </div>
         </div>
     </div>
-
 
     <!-- Футер -->
     <footer>
@@ -806,6 +998,8 @@
         // Открытие модального окна загрузки
         downloadBtn.addEventListener('click', () => {
             downloadModal.style.display = 'flex';
+            // Сброс слайдера на первый слайд при открытии
+            goToSlide(0);
         });
 
         // Закрытие модальных окон
@@ -824,6 +1018,84 @@
             }
             if (e.target === downloadModal) {
                 downloadModal.style.display = 'none';
+            }
+        });
+
+        // Логика слайдера для модального окна загрузки
+        let currentSlide = 0;
+        const slides = document.querySelectorAll('.modal-slide');
+        const totalSlides = slides.length;
+        
+        // Элементы управления слайдером
+        const prevBtn = document.getElementById('prevSlide');
+        const nextBtn = document.getElementById('nextSlide');
+        const dots = document.querySelectorAll('.slider-dot');
+        const currentSlideElement = document.getElementById('currentSlide');
+        
+        // Функция для перехода к определенному слайду
+        function goToSlide(slideIndex) {
+            // Скрыть все слайды
+            slides.forEach(slide => {
+                slide.classList.remove('active');
+            });
+            
+            // Убрать активный класс со всех точек
+            dots.forEach(dot => {
+                dot.classList.remove('active');
+            });
+            
+            // Показать выбранный слайд
+            slides[slideIndex].classList.add('active');
+            
+            // Активировать соответствующую точку
+            dots[slideIndex].classList.add('active');
+            
+            // Обновить счетчик
+            currentSlide = slideIndex;
+            currentSlideElement.textContent = slideIndex + 1;
+            
+            // Обновить состояние кнопок
+            prevBtn.disabled = slideIndex === 0;
+            nextBtn.disabled = slideIndex === totalSlides - 1;
+        }
+        
+        // Переход к следующему слайду
+        function nextSlide() {
+            if (currentSlide < totalSlides - 1) {
+                goToSlide(currentSlide + 1);
+            }
+        }
+        
+        // Переход к предыдущему слайду
+        function prevSlide() {
+            if (currentSlide > 0) {
+                goToSlide(currentSlide - 1);
+            }
+        }
+        
+        // Обработчики событий для кнопок навигации
+        prevBtn.addEventListener('click', prevSlide);
+        nextBtn.addEventListener('click', nextSlide);
+        
+        // Обработчики событий для точек навигации
+        dots.forEach(dot => {
+            dot.addEventListener('click', () => {
+                const slideIndex = parseInt(dot.getAttribute('data-slide'));
+                goToSlide(slideIndex);
+            });
+        });
+        
+        // Обработка нажатия клавиш для листания
+        document.addEventListener('keydown', (e) => {
+            // Только если открыто модальное окно загрузки
+            if (downloadModal.style.display === 'flex') {
+                if (e.key === 'ArrowLeft') {
+                    prevSlide();
+                } else if (e.key === 'ArrowRight') {
+                    nextSlide();
+                } else if (e.key === 'Escape') {
+                    downloadModal.style.display = 'none';
+                }
             }
         });
 
@@ -872,29 +1144,4 @@
         });
     </script>
 </body>
-
 </html>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
