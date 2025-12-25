@@ -18,6 +18,90 @@
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
         }
 
+        // Создаем снежинки (уменьшенное количество)
+function createSnowflakes() {
+    const container = document.querySelector('.countdown-container');
+    for (let i = 0; i < 8; i++) {
+        const snowflake = document.createElement('div');
+        snowflake.classList.add('snowflake');
+        snowflake.innerHTML = '❄';
+        snowflake.style.left = Math.random() * 100 + '%';
+        snowflake.style.animationDuration = Math.random() * 4 + 3 + 's';
+        snowflake.style.animationDelay = Math.random() * 3 + 's';
+        snowflake.style.opacity = Math.random() * 0.3 + 0.2;
+        snowflake.style.fontSize = Math.random() * 6 + 8 + 'px';
+        container.appendChild(snowflake);
+    }
+}
+
+// Отсчёт до нового года
+function updateCountdown() {
+    const now = new Date();
+    const currentYear = now.getFullYear();
+    const nextYear = currentYear + 1;
+    const newYear = new Date(`January 1, ${nextYear} 00:00:00`);
+    
+    const diff = newYear - now;
+    
+    const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+    const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+    const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+    const seconds = Math.floor((diff % (1000 * 60)) / 1000);
+    
+    // Анимация цифр
+    document.getElementById('days').textContent = days.toString().padStart(2, '0');
+    document.getElementById('hours').textContent = hours.toString().padStart(2, '0');
+    document.getElementById('minutes').textContent = minutes.toString().padStart(2, '0');
+    document.getElementById('seconds').textContent = seconds.toString().padStart(2, '0');
+    document.getElementById('nextYear').textContent = nextYear;
+    
+    // Эффект пульсации в последние 10 секунд
+    if (days === 0 && hours === 0 && minutes === 0 && seconds <= 10) {
+        document.querySelectorAll('.countdown-number').forEach(el => {
+            el.style.animation = 'pulse 0.5s infinite';
+        });
+    }
+}
+
+// Инициализация
+document.addEventListener('DOMContentLoaded', function() {
+    createSnowflakes();
+    updateCountdown();
+    setInterval(updateCountdown, 1000);
+    
+    // Добавляем стиль для пульсации
+    const style = document.createElement('style');
+    style.textContent = `
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+        
+        .countdown-number {
+            transition: all 0.2s ease;
+        }
+    `;
+    document.head.appendChild(style);
+});
+
+// Автоматическое скрытие после 10 января
+function shouldShowCountdown() {
+    const now = new Date();
+    const month = now.getMonth();
+    const day = now.getDate();
+    
+    // Показываем только с 1 декабря по 10 января
+    if ((month === 11 && day >= 1) || (month === 0 && day <= 10)) {
+        return true;
+    }
+    return false;
+}
+
+// Проверяем при загрузке
+if (!shouldShowCountdown()) {
+    document.getElementById('newYearCountdown').style.display = 'none';
+}    
+        
         body {
             background-color: #1a0000;
             color: #fff;
@@ -1410,92 +1494,6 @@
         <span id="nextYear">2025</span> год скоро! ✨
     </div>
 </div>
-
-// Создаем снежинки (уменьшенное количество)
-function createSnowflakes() {
-    const container = document.querySelector('.countdown-container');
-    for (let i = 0; i < 8; i++) {
-        const snowflake = document.createElement('div');
-        snowflake.classList.add('snowflake');
-        snowflake.innerHTML = '❄';
-        snowflake.style.left = Math.random() * 100 + '%';
-        snowflake.style.animationDuration = Math.random() * 4 + 3 + 's';
-        snowflake.style.animationDelay = Math.random() * 3 + 's';
-        snowflake.style.opacity = Math.random() * 0.3 + 0.2;
-        snowflake.style.fontSize = Math.random() * 6 + 8 + 'px';
-        container.appendChild(snowflake);
-    }
-}
-
-// Отсчёт до нового года
-function updateCountdown() {
-    const now = new Date();
-    const currentYear = now.getFullYear();
-    const nextYear = currentYear + 1;
-    const newYear = new Date(`January 1, ${nextYear} 00:00:00`);
-    
-    const diff = newYear - now;
-    
-    const days = Math.floor(diff / (1000 * 60 * 60 * 24));
-    const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-    const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
-    const seconds = Math.floor((diff % (1000 * 60)) / 1000);
-    
-    // Анимация цифр
-    document.getElementById('days').textContent = days.toString().padStart(2, '0');
-    document.getElementById('hours').textContent = hours.toString().padStart(2, '0');
-    document.getElementById('minutes').textContent = minutes.toString().padStart(2, '0');
-    document.getElementById('seconds').textContent = seconds.toString().padStart(2, '0');
-    document.getElementById('nextYear').textContent = nextYear;
-    
-    // Эффект пульсации в последние 10 секунд
-    if (days === 0 && hours === 0 && minutes === 0 && seconds <= 10) {
-        document.querySelectorAll('.countdown-number').forEach(el => {
-            el.style.animation = 'pulse 0.5s infinite';
-        });
-    }
-}
-
-// Инициализация
-document.addEventListener('DOMContentLoaded', function() {
-    createSnowflakes();
-    updateCountdown();
-    setInterval(updateCountdown, 1000);
-    
-    // Добавляем стиль для пульсации
-    const style = document.createElement('style');
-    style.textContent = `
-        @keyframes pulse {
-            0%, 100% { transform: scale(1); }
-            50% { transform: scale(1.05); }
-        }
-        
-        .countdown-number {
-            transition: all 0.2s ease;
-        }
-    `;
-    document.head.appendChild(style);
-});
-
-// Автоматическое скрытие после 10 января
-function shouldShowCountdown() {
-    const now = new Date();
-    const month = now.getMonth();
-    const day = now.getDate();
-    
-    // Показываем только с 1 декабря по 10 января
-    if ((month === 11 && day >= 1) || (month === 0 && day <= 10)) {
-        return true;
-    }
-    return false;
-}
-
-// Проверяем при загрузке
-if (!shouldShowCountdown()) {
-    document.getElementById('newYearCountdown').style.display = 'none';
-}
-
-        
         // Простая анимация для промокода
         const promoCode = document.querySelector('.promo-code');
         promoCode.addEventListener('mouseenter', () => {
@@ -1546,6 +1544,7 @@ if (!shouldShowCountdown()) {
     </script>
 </body>
 </html>
+
 
 
 
