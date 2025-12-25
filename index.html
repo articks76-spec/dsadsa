@@ -1141,6 +1141,361 @@
             });
         });
 
+        <style>
+/* Стили для отсчёта - КОМПАКТНАЯ ВЕРСИЯ */
+.countdown-container {
+    background: linear-gradient(135deg, rgba(21, 21, 21, 0.95) 0%, rgba(40, 40, 40, 0.95) 100%);
+    border-radius: 15px;
+    padding: 15px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    box-shadow:
+        0 5px 20px rgba(0, 0, 0, 0.25),
+        0 0 0 1px rgba(255, 255, 255, 0.05) inset;
+    backdrop-filter: blur(10px);
+    max-width: 400px;
+    margin: 15px auto;
+    position: relative;
+    overflow: hidden;
+}
+
+.countdown-container::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 2px;
+    background: linear-gradient(90deg,
+        #ff3366 0%,
+        #ff9933 25%,
+        #33ff66 50%,
+        #3399ff 75%,
+        #cc33ff 100%);
+    background-size: 400% 100%;
+    animation: rainbow 4s linear infinite;
+}
+
+@keyframes rainbow {
+    0% { background-position: 0% 50%; }
+    100% { background-position: 400% 50%; }
+}
+
+.countdown-title {
+    text-align: center;
+    font-size: 1.3rem;
+    font-weight: 700;
+    background: linear-gradient(45deg, #ff3366, #33ccff);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    margin-bottom: 15px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    text-shadow: 0 1px 5px rgba(255, 51, 102, 0.2);
+}
+
+/* ГОРИЗОНТАЛЬНОЕ РАСПОЛОЖЕНИЕ */
+.countdown-grid {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 15px;
+    gap: 8px;
+}
+
+.countdown-item {
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 10px;
+    padding: 12px 8px;
+    text-align: center;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    transition: all 0.2s ease;
+    position: relative;
+    overflow: hidden;
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.countdown-item:hover {
+    background: rgba(255, 255, 255, 0.08);
+    transform: translateY(-1px);
+    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.15);
+}
+
+.countdown-item::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg,
+        transparent,
+        rgba(255, 255, 255, 0.08),
+        transparent);
+    transition: left 0.5s ease;
+}
+
+.countdown-item:hover::before {
+    left: 100%;
+}
+
+/* УМЕНЬШЕННЫЕ ЦИФРЫ */
+.countdown-number {
+    font-size: 1.6rem;
+    font-weight: 800;
+    color: #fff;
+    line-height: 1;
+    margin-bottom: 2px;
+    text-shadow: 0 0 5px rgba(255, 255, 255, 0.2);
+    font-family: 'Courier New', monospace;
+    letter-spacing: -0.5px;
+}
+
+/* УМЕНЬШЕННЫЕ ПОДПИСИ */
+.countdown-label {
+    font-size: 0.7rem;
+    color: rgba(255, 255, 255, 0.6);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    font-weight: 600;
+}
+
+.countdown-year {
+    text-align: center;
+    font-size: 1rem;
+    color: rgba(255, 255, 255, 0.85);
+    font-weight: 600;
+    padding-top: 10px;
+    border-top: 1px solid rgba(255, 255, 255, 0.08);
+    margin-top: 10px;
+}
+
+.countdown-year span {
+    color: #ffcc00;
+    font-weight: 700;
+    text-shadow: 0 0 3px rgba(255, 204, 0, 0.3);
+}
+
+/* УПРОЩЕННЫЕ СНЕЖИНКИ */
+.snowflake {
+    position: absolute;
+    color: #fff;
+    font-size: 10px;
+    opacity: 0.5;
+    animation: fall linear infinite;
+    z-index: 1;
+    pointer-events: none;
+}
+
+@keyframes fall {
+    to {
+        transform: translateY(100vh) rotate(180deg);
+    }
+}
+
+/* ДЕЛИМИТЕРЫ МЕЖД ЦИФРАМИ */
+.countdown-separator {
+    color: rgba(255, 255, 255, 0.3);
+    font-size: 1.2rem;
+    font-weight: 700;
+    margin: 0 2px;
+    align-self: center;
+    padding-bottom: 15px;
+}
+
+/* Адаптивность для мобильных */
+@media (max-width: 480px) {
+    .countdown-container {
+        padding: 12px;
+        margin: 10px;
+        border-radius: 12px;
+        max-width: 350px;
+    }
+    
+    .countdown-grid {
+        gap: 5px;
+    }
+    
+    .countdown-item {
+        padding: 10px 6px;
+        border-radius: 8px;
+    }
+    
+    .countdown-number {
+        font-size: 1.4rem;
+    }
+    
+    .countdown-label {
+        font-size: 0.65rem;
+    }
+    
+    .countdown-title {
+        font-size: 1.1rem;
+        margin-bottom: 12px;
+    }
+    
+    .countdown-year {
+        font-size: 0.9rem;
+        padding-top: 8px;
+    }
+    
+    .countdown-separator {
+        font-size: 1rem;
+        margin: 0 1px;
+    }
+}
+
+/* Для очень маленьких экранов */
+@media (max-width: 360px) {
+    .countdown-container {
+        max-width: 320px;
+        padding: 10px;
+    }
+    
+    .countdown-number {
+        font-size: 1.2rem;
+    }
+    
+    .countdown-label {
+        font-size: 0.6rem;
+    }
+    
+    .countdown-separator {
+        font-size: 0.9rem;
+        padding-bottom: 12px;
+    }
+}
+</style>
+
+<div class="countdown-container" id="newYearCountdown">
+    <div class="countdown-title">🎄 До Нового Года</div>
+    
+    <div class="countdown-grid">
+        <!-- Дни -->
+        <div class="countdown-item">
+            <div class="countdown-number" id="days">00</div>
+            <div class="countdown-label">Дней</div>
+        </div>
+        
+        <div class="countdown-separator">:</div>
+        
+        <!-- Часы -->
+        <div class="countdown-item">
+            <div class="countdown-number" id="hours">00</div>
+            <div class="countdown-label">Часов</div>
+        </div>
+        
+        <div class="countdown-separator">:</div>
+        
+        <!-- Минуты -->
+        <div class="countdown-item">
+            <div class="countdown-number" id="minutes">00</div>
+            <div class="countdown-label">Мин</div>
+        </div>
+        
+        <div class="countdown-separator">:</div>
+        
+        <!-- Секунды -->
+        <div class="countdown-item">
+            <div class="countdown-number" id="seconds">00</div>
+            <div class="countdown-label">Сек</div>
+        </div>
+    </div>
+    
+    <div class="countdown-year">
+        <span id="nextYear">2025</span> год скоро! ✨
+    </div>
+</div>
+
+// Создаем снежинки (уменьшенное количество)
+function createSnowflakes() {
+    const container = document.querySelector('.countdown-container');
+    for (let i = 0; i < 8; i++) {
+        const snowflake = document.createElement('div');
+        snowflake.classList.add('snowflake');
+        snowflake.innerHTML = '❄';
+        snowflake.style.left = Math.random() * 100 + '%';
+        snowflake.style.animationDuration = Math.random() * 4 + 3 + 's';
+        snowflake.style.animationDelay = Math.random() * 3 + 's';
+        snowflake.style.opacity = Math.random() * 0.3 + 0.2;
+        snowflake.style.fontSize = Math.random() * 6 + 8 + 'px';
+        container.appendChild(snowflake);
+    }
+}
+
+// Отсчёт до нового года
+function updateCountdown() {
+    const now = new Date();
+    const currentYear = now.getFullYear();
+    const nextYear = currentYear + 1;
+    const newYear = new Date(`January 1, ${nextYear} 00:00:00`);
+    
+    const diff = newYear - now;
+    
+    const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+    const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+    const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+    const seconds = Math.floor((diff % (1000 * 60)) / 1000);
+    
+    // Анимация цифр
+    document.getElementById('days').textContent = days.toString().padStart(2, '0');
+    document.getElementById('hours').textContent = hours.toString().padStart(2, '0');
+    document.getElementById('minutes').textContent = minutes.toString().padStart(2, '0');
+    document.getElementById('seconds').textContent = seconds.toString().padStart(2, '0');
+    document.getElementById('nextYear').textContent = nextYear;
+    
+    // Эффект пульсации в последние 10 секунд
+    if (days === 0 && hours === 0 && minutes === 0 && seconds <= 10) {
+        document.querySelectorAll('.countdown-number').forEach(el => {
+            el.style.animation = 'pulse 0.5s infinite';
+        });
+    }
+}
+
+// Инициализация
+document.addEventListener('DOMContentLoaded', function() {
+    createSnowflakes();
+    updateCountdown();
+    setInterval(updateCountdown, 1000);
+    
+    // Добавляем стиль для пульсации
+    const style = document.createElement('style');
+    style.textContent = `
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+        
+        .countdown-number {
+            transition: all 0.2s ease;
+        }
+    `;
+    document.head.appendChild(style);
+});
+
+// Автоматическое скрытие после 10 января
+function shouldShowCountdown() {
+    const now = new Date();
+    const month = now.getMonth();
+    const day = now.getDate();
+    
+    // Показываем только с 1 декабря по 10 января
+    if ((month === 11 && day >= 1) || (month === 0 && day <= 10)) {
+        return true;
+    }
+    return false;
+}
+
+// Проверяем при загрузке
+if (!shouldShowCountdown()) {
+    document.getElementById('newYearCountdown').style.display = 'none';
+}
+
+        
         // Простая анимация для промокода
         const promoCode = document.querySelector('.promo-code');
         promoCode.addEventListener('mouseenter', () => {
@@ -1191,6 +1546,7 @@
     </script>
 </body>
 </html>
+
 
 
 
