@@ -27,6 +27,7 @@
             --gold: #FFD700;
             --green: #00aa00;
             --blue: #0066cc;
+            --purple: #800080;
             --shadow: 0 8px 30px rgba(139, 0, 0, 0.15);
             --shadow-heavy: 0 15px 40px rgba(139, 0, 0, 0.25);
             --transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
@@ -203,6 +204,7 @@
             align-items: center;
             justify-content: center;
             font-weight: bold;
+            font-size: 1.2rem;
         }
 
         .user-name {
@@ -722,6 +724,10 @@
             background: linear-gradient(135deg, #cc0000, #990000);
         }
 
+        .btn-purple {
+            background: linear-gradient(135deg, var(--purple), #660066);
+        }
+
         .users-list {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
@@ -758,6 +764,53 @@
         .user-card-actions {
             display: flex;
             gap: 10px;
+        }
+
+        /* Вкладки для авторизации/регистрации */
+        .auth-tabs {
+            display: flex;
+            margin-bottom: 25px;
+            border-bottom: 2px solid rgba(139, 0, 0, 0.3);
+        }
+
+        .auth-tab {
+            flex: 1;
+            text-align: center;
+            padding: 15px;
+            background: none;
+            border: none;
+            color: var(--text-gray);
+            font-size: 1.2rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+            position: relative;
+        }
+
+        .auth-tab.active {
+            color: var(--light-red);
+        }
+
+        .auth-tab.active:after {
+            content: '';
+            position: absolute;
+            bottom: -2px;
+            left: 0;
+            width: 100%;
+            height: 3px;
+            background: var(--light-red);
+        }
+
+        .auth-tab:hover {
+            color: var(--text-light);
+        }
+
+        .auth-content {
+            display: none;
+        }
+
+        .auth-content.active {
+            display: block;
         }
 
         /* Модальные окна */
@@ -895,6 +948,35 @@
             background: linear-gradient(135deg, var(--accent-red), var(--light-red));
         }
 
+        /* Сообщения */
+        .message {
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            display: none;
+        }
+
+        .message.success {
+            background: rgba(0, 170, 0, 0.2);
+            border: 1px solid rgba(0, 170, 0, 0.4);
+            color: #90ee90;
+            display: block;
+        }
+
+        .message.error {
+            background: rgba(204, 0, 0, 0.2);
+            border: 1px solid rgba(204, 0, 0, 0.4);
+            color: #ff9999;
+            display: block;
+        }
+
+        .message.info {
+            background: rgba(0, 102, 204, 0.2);
+            border: 1px solid rgba(0, 102, 204, 0.4);
+            color: #99ccff;
+            display: block;
+        }
+
         /* Footer */
         footer {
             background: rgba(12, 12, 12, 0.95);
@@ -1000,6 +1082,14 @@
             .admin-grid, .users-list {
                 grid-template-columns: 1fr;
             }
+            
+            .auth-tabs {
+                flex-direction: column;
+            }
+            
+            .auth-tab {
+                padding: 12px;
+            }
         }
     </style>
 </head>
@@ -1054,8 +1144,8 @@
         <div class="container">
             <div class="stat-card">
                 <div class="stat-icon">👥</div>
-                <div class="stat-value">10+</div>
-                <div class="stat-label">Игроков ожидается</div>
+                <div class="stat-value" id="onlineUsers">3</div>
+                <div class="stat-label">Зарегистрировано</div>
             </div>
             <div class="stat-card">
                 <div class="stat-icon">🚗</div>
@@ -1193,32 +1283,62 @@
         </div>
     </footer>
 
-    <!-- Модальное окно авторизации -->
-    <div class="modal-overlay" id="login-modal">
+    <!-- Модальное окно авторизации/регистрации -->
+    <div class="modal-overlay" id="auth-modal">
         <div class="modal-content">
             <div class="modal-header">
-                <h2 class="modal-title">Авторизация</h2>
-                <button class="close-modal" data-modal="login">&times;</button>
+                <h2 class="modal-title">Аккаунт Redjin RP</h2>
+                <button class="close-modal" data-modal="auth">&times;</button>
             </div>
             <div class="modal-body">
-                <div class="form-group">
-                    <label class="form-label">Логин</label>
-                    <input type="text" class="form-input" id="login-username" placeholder="Введите ваш логин">
+                <div class="auth-tabs">
+                    <button class="auth-tab active" data-tab="login">Вход</button>
+                    <button class="auth-tab" data-tab="register">Регистрация</button>
                 </div>
-                <div class="form-group">
-                    <label class="form-label">Пароль</label>
-                    <input type="password" class="form-input" id="login-password" placeholder="Введите ваш пароль">
+                
+                <!-- Сообщения -->
+                <div class="message" id="authMessage"></div>
+                
+                <!-- Вкладка входа -->
+                <div class="auth-content active" id="login-content">
+                    <div class="form-group">
+                        <label class="form-label">Логин</label>
+                        <input type="text" class="form-input" id="login-username" placeholder="Введите ваш логин">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Пароль</label>
+                        <input type="password" class="form-input" id="login-password" placeholder="Введите ваш пароль">
+                    </div>
+                    <div class="form-group">
+                        <button class="btn" id="login-submit" style="width: 100%;">
+                            <i class="fas fa-sign-in-alt"></i> Войти в аккаунт
+                        </button>
+                    </div>
                 </div>
-                <div class="form-group">
-                    <button class="btn" id="login-submit" style="width: 100%;">
-                        <i class="fas fa-sign-in-alt"></i> Войти
-                    </button>
-                </div>
-                <div class="form-group" style="text-align: center; margin-top: 20px;">
-                    <p style="color: var(--text-gray);">Демо доступ:</p>
-                    <p style="color: var(--text-light); font-size: 0.9rem;">
-                        Логин: <strong>admin</strong> | Пароль: <strong>admin123</strong>
-                    </p>
+                
+                <!-- Вкладка регистрации -->
+                <div class="auth-content" id="register-content">
+                    <div class="form-group">
+                        <label class="form-label">Логин (от 3 до 20 символов)</label>
+                        <input type="text" class="form-input" id="register-username" placeholder="Придумайте логин">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Пароль (минимум 6 символов)</label>
+                        <input type="password" class="form-input" id="register-password" placeholder="Придумайте пароль">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Подтверждение пароля</label>
+                        <input type="password" class="form-input" id="register-confirm" placeholder="Повторите пароль">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Email (необязательно)</label>
+                        <input type="email" class="form-input" id="register-email" placeholder="example@email.com">
+                    </div>
+                    <div class="form-group">
+                        <button class="btn btn-success" id="register-submit" style="width: 100%;">
+                            <i class="fas fa-user-plus"></i> Создать аккаунт
+                        </button>
+                    </div>
                 </div>
             </div>
         </div>
@@ -1251,7 +1371,7 @@
                         <div class="admin-card-title">
                             <i class="fas fa-users"></i> Пользователи
                         </div>
-                        <div class="stat-value" id="statsUsers">1</div>
+                        <div class="stat-value" id="statsUsers">3</div>
                         <div class="stat-label">Зарегистрировано</div>
                     </div>
                     <div class="admin-card">
@@ -1420,6 +1540,37 @@
                     </div>
                     <button class="btn btn-success" id="saveAdminAccess">
                         <i class="fas fa-save"></i> Сохранить изменения
+                    </button>
+                </div>
+            </div>
+            
+            <!-- Создание пользователя админом -->
+            <div class="admin-section">
+                <h3 class="section-title">
+                    <i class="fas fa-user-plus"></i> Создание аккаунта
+                </h3>
+                <div class="admin-card">
+                    <div class="admin-card-title">
+                        <i class="fas fa-user-plus"></i> Создать аккаунт пользователя
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Логин пользователя</label>
+                        <input type="text" class="form-input" id="adminCreateUsername" placeholder="Введите логин">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Пароль</label>
+                        <input type="password" class="form-input" id="adminCreatePassword" placeholder="Введите пароль">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Роль по умолчанию</label>
+                        <select class="form-input" id="adminCreateRole">
+                            <option value="4">Пользователь</option>
+                            <option value="3">Модератор</option>
+                            <option value="2">Администратор</option>
+                        </select>
+                    </div>
+                    <button class="btn btn-purple" id="adminCreateUser">
+                        <i class="fas fa-user-plus"></i> Создать аккаунт
                     </button>
                 </div>
             </div>
@@ -1621,7 +1772,7 @@
                     }
                 ];
                 
-                // Демо пользователи
+                // Начальные пользователи (без демо паролей)
                 this.users = [
                     {
                         id: 1,
@@ -1630,25 +1781,9 @@
                         roleId: 1,
                         hasAdminPanel: true,
                         adminAccessLevel: 'owner',
-                        createdAt: new Date().toISOString()
-                    },
-                    {
-                        id: 2,
-                        username: 'moderator',
-                        password: 'mod123',
-                        roleId: 3,
-                        hasAdminPanel: true,
-                        adminAccessLevel: 'moderator',
-                        createdAt: new Date().toISOString()
-                    },
-                    {
-                        id: 3,
-                        username: 'user1',
-                        password: 'user123',
-                        roleId: 4,
-                        hasAdminPanel: false,
-                        adminAccessLevel: null,
-                        createdAt: new Date().toISOString()
+                        email: '',
+                        createdAt: new Date().toISOString(),
+                        lastLogin: new Date().toISOString()
                     }
                 ];
                 
@@ -1660,20 +1795,43 @@
                 const savedUsers = localStorage.getItem('redjin_users');
                 const savedRoles = localStorage.getItem('redjin_roles');
                 
-                if (savedUsers) this.users = JSON.parse(savedUsers);
-                if (savedRoles) this.roles = JSON.parse(savedRoles);
+                if (savedUsers) {
+                    try {
+                        this.users = JSON.parse(savedUsers);
+                    } catch (e) {
+                        console.error('Ошибка загрузки пользователей:', e);
+                    }
+                }
+                
+                if (savedRoles) {
+                    try {
+                        this.roles = JSON.parse(savedRoles);
+                    } catch (e) {
+                        console.error('Ошибка загрузки ролей:', e);
+                    }
+                }
                 
                 const savedUser = localStorage.getItem('redjin_current_user');
-                if (savedUser) this.currentUser = JSON.parse(savedUser);
+                if (savedUser) {
+                    try {
+                        this.currentUser = JSON.parse(savedUser);
+                    } catch (e) {
+                        console.error('Ошибка загрузки текущего пользователя:', e);
+                    }
+                }
             }
             
             saveToStorage() {
-                localStorage.setItem('redjin_users', JSON.stringify(this.users));
-                localStorage.setItem('redjin_roles', JSON.stringify(this.roles));
-                if (this.currentUser) {
-                    localStorage.setItem('redjin_current_user', JSON.stringify(this.currentUser));
-                } else {
-                    localStorage.removeItem('redjin_current_user');
+                try {
+                    localStorage.setItem('redjin_users', JSON.stringify(this.users));
+                    localStorage.setItem('redjin_roles', JSON.stringify(this.roles));
+                    if (this.currentUser) {
+                        localStorage.setItem('redjin_current_user', JSON.stringify(this.currentUser));
+                    } else {
+                        localStorage.removeItem('redjin_current_user');
+                    }
+                } catch (e) {
+                    console.error('Ошибка сохранения данных:', e);
                 }
             }
             
@@ -1707,11 +1865,109 @@
                         adminAccessLevel: user.adminAccessLevel,
                         isSuperAdmin: false
                     };
+                    
+                    // Обновляем время последнего входа
+                    user.lastLogin = new Date().toISOString();
                     this.saveToStorage();
+                    
                     return { success: true, user: this.currentUser };
                 }
                 
                 return { success: false, message: 'Неверный логин или пароль' };
+            }
+            
+            register(username, password, email = '') {
+                // Проверка минимальной длины логина
+                if (username.length < 3 || username.length > 20) {
+                    return { success: false, message: 'Логин должен быть от 3 до 20 символов' };
+                }
+                
+                // Проверка минимальной длины пароля
+                if (password.length < 6) {
+                    return { success: false, message: 'Пароль должен быть не менее 6 символов' };
+                }
+                
+                // Проверка на существование пользователя
+                const existingUser = this.users.find(u => u.username.toLowerCase() === username.toLowerCase());
+                if (existingUser) {
+                    return { success: false, message: 'Пользователь с таким логином уже существует' };
+                }
+                
+                // Создание нового пользователя
+                const newUser = {
+                    id: this.users.length + 1,
+                    username: username,
+                    password: password,
+                    roleId: 4, // Роль "Пользователь" по умолчанию
+                    hasAdminPanel: false,
+                    adminAccessLevel: null,
+                    email: email || '',
+                    createdAt: new Date().toISOString(),
+                    lastLogin: new Date().toISOString()
+                };
+                
+                this.users.push(newUser);
+                this.saveToStorage();
+                
+                // Автоматический вход после регистрации
+                const role = this.roles.find(r => r.id === 4);
+                this.currentUser = {
+                    id: newUser.id,
+                    username: newUser.username,
+                    role: role ? role.name : 'Пользователь',
+                    permissions: role ? role.permissions : [],
+                    hasAdminPanel: false,
+                    adminAccessLevel: null,
+                    isSuperAdmin: false
+                };
+                
+                this.saveToStorage();
+                
+                return { 
+                    success: true, 
+                    user: this.currentUser,
+                    message: 'Аккаунт успешно создан! Добро пожаловать в Redjin RP!'
+                };
+            }
+            
+            createUserByAdmin(username, password, roleId = 4) {
+                // Проверка минимальной длины логина
+                if (username.length < 3 || username.length > 20) {
+                    return { success: false, message: 'Логин должен быть от 3 до 20 символов' };
+                }
+                
+                // Проверка минимальной длины пароля
+                if (password.length < 6) {
+                    return { success: false, message: 'Пароль должен быть не менее 6 символов' };
+                }
+                
+                // Проверка на существование пользователя
+                const existingUser = this.users.find(u => u.username.toLowerCase() === username.toLowerCase());
+                if (existingUser) {
+                    return { success: false, message: 'Пользователь с таким логином уже существует' };
+                }
+                
+                // Создание нового пользователя
+                const newUser = {
+                    id: this.users.length + 1,
+                    username: username,
+                    password: password,
+                    roleId: roleId,
+                    hasAdminPanel: false,
+                    adminAccessLevel: null,
+                    email: '',
+                    createdAt: new Date().toISOString(),
+                    lastLogin: null
+                };
+                
+                this.users.push(newUser);
+                this.saveToStorage();
+                
+                return { 
+                    success: true, 
+                    user: newUser,
+                    message: `Аккаунт пользователя "${username}" успешно создан!`
+                };
             }
             
             logout() {
@@ -1780,27 +2036,6 @@
                 return false;
             }
             
-            createUser(username, password, roleId = 4) {
-                const existingUser = this.users.find(u => u.username === username);
-                if (existingUser) {
-                    return { success: false, message: 'Пользователь с таким логином уже существует' };
-                }
-                
-                const newUser = {
-                    id: this.users.length + 1,
-                    username: username,
-                    password: password,
-                    roleId: roleId,
-                    hasAdminPanel: false,
-                    adminAccessLevel: null,
-                    createdAt: new Date().toISOString()
-                };
-                
-                this.users.push(newUser);
-                this.saveToStorage();
-                return { success: true, user: newUser };
-            }
-            
             getUsers() {
                 return this.users.map(user => {
                     const role = this.roles.find(r => r.id === user.roleId);
@@ -1824,6 +2059,18 @@
                     roles: this.roles.length
                 };
             }
+            
+            deleteUser(userId) {
+                if (userId === 1) return false; // Нельзя удалить суперадмина
+                
+                const userIndex = this.users.findIndex(u => u.id === userId);
+                if (userIndex !== -1) {
+                    this.users.splice(userIndex, 1);
+                    this.saveToStorage();
+                    return true;
+                }
+                return false;
+            }
         }
         
         // Инициализация системы
@@ -1831,8 +2078,9 @@
         
         // DOM элементы
         const userControls = document.getElementById('userControls');
-        const loginModal = document.getElementById('login-modal');
+        const authModal = document.getElementById('auth-modal');
         const adminPanel = document.getElementById('adminPanel');
+        const onlineUsersElement = document.getElementById('onlineUsers');
         
         // Обновление интерфейса пользователя
         function updateUserInterface() {
@@ -1864,37 +2112,85 @@
             } else {
                 userControls.innerHTML = `
                     <button class="auth-btn" id="loginBtn">
-                        <i class="fas fa-sign-in-alt"></i> Войти
+                        <i class="fas fa-sign-in-alt"></i> Войти / Регистрация
                     </button>
                 `;
-                document.getElementById('loginBtn').addEventListener('click', () => openModal(loginModal));
+                document.getElementById('loginBtn').addEventListener('click', () => openModal(authModal));
             }
+            
+            // Обновляем статистику пользователей
+            const stats = accountSystem.getStats();
+            onlineUsersElement.textContent = stats.users;
+        }
+        
+        // Показать сообщение в модальном окне
+        function showAuthMessage(message, type = 'error') {
+            const messageElement = document.getElementById('authMessage');
+            messageElement.textContent = message;
+            messageElement.className = `message ${type}`;
+            
+            // Автоматически скрыть сообщение через 5 секунд
+            setTimeout(() => {
+                messageElement.className = 'message';
+                messageElement.textContent = '';
+            }, 5000);
         }
         
         // Функции авторизации
         function login() {
-            const username = document.getElementById('login-username').value;
+            const username = document.getElementById('login-username').value.trim();
             const password = document.getElementById('login-password').value;
             
             if (!username || !password) {
-                alert('Пожалуйста, заполните все поля');
+                showAuthMessage('Пожалуйста, заполните все поля', 'error');
                 return;
             }
             
             const result = accountSystem.login(username, password);
             
             if (result.success) {
-                closeModal(loginModal);
+                closeModal(authModal);
                 updateUserInterface();
+                showAuthMessage(`Добро пожаловать, ${result.user.username}!`, 'success');
                 
-                // Показываем приветствие
-                if (result.user.isSuperAdmin) {
-                    alert('Добро пожаловать, Владелец! Доступ ко всем функциям открыт.');
-                } else {
-                    alert(`Добро пожаловать, ${result.user.username}!`);
-                }
+                // Очищаем поля формы
+                document.getElementById('login-username').value = '';
+                document.getElementById('login-password').value = '';
             } else {
-                alert(result.message || 'Ошибка авторизации');
+                showAuthMessage(result.message || 'Ошибка авторизации', 'error');
+            }
+        }
+        
+        function register() {
+            const username = document.getElementById('register-username').value.trim();
+            const password = document.getElementById('register-password').value;
+            const confirmPassword = document.getElementById('register-confirm').value;
+            const email = document.getElementById('register-email').value.trim();
+            
+            if (!username || !password || !confirmPassword) {
+                showAuthMessage('Пожалуйста, заполните все обязательные поля', 'error');
+                return;
+            }
+            
+            if (password !== confirmPassword) {
+                showAuthMessage('Пароли не совпадают', 'error');
+                return;
+            }
+            
+            const result = accountSystem.register(username, password, email);
+            
+            if (result.success) {
+                closeModal(authModal);
+                updateUserInterface();
+                showAuthMessage(result.message, 'success');
+                
+                // Очищаем поля формы
+                document.getElementById('register-username').value = '';
+                document.getElementById('register-password').value = '';
+                document.getElementById('register-confirm').value = '';
+                document.getElementById('register-email').value = '';
+            } else {
+                showAuthMessage(result.message, 'error');
             }
         }
         
@@ -1902,13 +2198,13 @@
             accountSystem.logout();
             updateUserInterface();
             closeAdminPanel();
-            alert('Вы вышли из системы');
+            showAuthMessage('Вы вышли из системы', 'info');
         }
         
         // Управление админ панелью
         function openAdminPanel() {
             if (!accountSystem.canAccessAdminPanel()) {
-                alert('У вас нет доступа к панели администратора');
+                showAuthMessage('У вас нет доступа к панели администратора', 'error');
                 return;
             }
             
@@ -1966,11 +2262,14 @@
                         <div style="font-size: 0.8rem; color: var(--text-gray);">
                             ${user.hasAdminPanel ? '✅ Админ панель' : '❌ Нет доступа'}
                         </div>
+                        <div style="font-size: 0.7rem; color: var(--text-gray);">
+                            Создан: ${new Date(user.createdAt).toLocaleDateString()}
+                        </div>
                     </div>
                     <div class="user-card-actions">
                         ${accountSystem.hasPermission('manage_users') ? `
-                            <button class="btn btn-secondary" onclick="editUser(${user.id})" style="padding: 5px 10px; font-size: 0.9rem;">
-                                <i class="fas fa-edit"></i>
+                            <button class="btn btn-danger" onclick="deleteUser(${user.id})" style="padding: 5px 10px; font-size: 0.9rem;">
+                                <i class="fas fa-trash"></i>
                             </button>
                         ` : ''}
                     </div>
@@ -1982,6 +2281,7 @@
             const selectUser = document.getElementById('selectUser');
             const selectRole = document.getElementById('selectRole');
             const adminPanelUser = document.getElementById('adminPanelUser');
+            const adminCreateRole = document.getElementById('adminCreateRole');
             
             selectUser.innerHTML = '<option value="">Выберите пользователя</option>';
             adminPanelUser.innerHTML = '<option value="">Выберите пользователя</option>';
@@ -2004,19 +2304,27 @@
                 option.value = role.id;
                 option.textContent = role.name;
                 selectRole.appendChild(option);
+                
+                // Для создания пользователя админом
+                if (role.id !== 1) { // Не показываем роль "Владелец"
+                    const option2 = document.createElement('option');
+                    option2.value = role.id;
+                    option2.textContent = role.name;
+                    adminCreateRole.appendChild(option2);
+                }
             });
         }
         
         // Функции администратора
         function createRole() {
             if (!accountSystem.hasPermission('manage_roles')) {
-                alert('У вас нет прав для создания ролей');
+                showAuthMessage('У вас нет прав для создания ролей', 'error');
                 return;
             }
             
-            const roleName = document.getElementById('roleName').value;
+            const roleName = document.getElementById('roleName').value.trim();
             if (!roleName) {
-                alert('Введите название роли');
+                showAuthMessage('Введите название роли', 'error');
                 return;
             }
             
@@ -2026,7 +2334,7 @@
             });
             
             if (permissions.length === 0) {
-                alert('Выберите хотя бы одно право');
+                showAuthMessage('Выберите хотя бы одно право', 'error');
                 return;
             }
             
@@ -2038,12 +2346,12 @@
                 checkbox.checked = false;
             });
             
-            alert(`Роль "${roleName}" успешно создана!`);
+            showAuthMessage(`Роль "${roleName}" успешно создана!`, 'success');
         }
         
         function assignRole() {
             if (!accountSystem.hasPermission('manage_users')) {
-                alert('У вас нет прав для выдачи ролей');
+                showAuthMessage('У вас нет прав для выдачи ролей', 'error');
                 return;
             }
             
@@ -2051,22 +2359,23 @@
             const roleId = parseInt(document.getElementById('selectRole').value);
             
             if (!userId || !roleId) {
-                alert('Выберите пользователя и роль');
+                showAuthMessage('Выберите пользователя и роль', 'error');
                 return;
             }
             
             const success = accountSystem.assignRole(userId, roleId);
             if (success) {
-                alert('Роль успешно выдана!');
+                showAuthMessage('Роль успешно выдана!', 'success');
                 loadAdminPanelData();
+                updateUserInterface();
             } else {
-                alert('Ошибка при выдаче роли');
+                showAuthMessage('Ошибка при выдаче роли', 'error');
             }
         }
         
         function saveAdminAccess() {
             if (!accountSystem.hasPermission('manage_users')) {
-                alert('У вас нет прав для управления доступом');
+                showAuthMessage('У вас нет прав для управления доступом', 'error');
                 return;
             }
             
@@ -2075,32 +2384,77 @@
             const grantAccess = document.getElementById('grantAdminPanel').checked;
             
             if (!userId) {
-                alert('Выберите пользователя');
+                showAuthMessage('Выберите пользователя', 'error');
                 return;
             }
             
             if (grantAccess) {
                 const success = accountSystem.grantAdminPanel(userId, accessLevel);
                 if (success) {
-                    alert(`Админ панель выдана пользователю с уровнем доступа: ${accessLevel}`);
+                    showAuthMessage(`Админ панель выдана пользователю с уровнем доступа: ${accessLevel}`, 'success');
                 } else {
-                    alert('Ошибка при выдаче доступа');
+                    showAuthMessage('Ошибка при выдаче доступа', 'error');
                 }
             } else {
                 const success = accountSystem.revokeAdminPanel(userId);
                 if (success) {
-                    alert('Доступ к админ панели отозван');
+                    showAuthMessage('Доступ к админ панели отозван', 'success');
                 } else {
-                    alert('Ошибка при отзыве доступа');
+                    showAuthMessage('Ошибка при отзыве доступа', 'error');
                 }
             }
             
             loadAdminPanelData();
+            updateUserInterface();
+        }
+        
+        function createUserByAdmin() {
+            if (!accountSystem.hasPermission('manage_users')) {
+                showAuthMessage('У вас нет прав для создания пользователей', 'error');
+                return;
+            }
+            
+            const username = document.getElementById('adminCreateUsername').value.trim();
+            const password = document.getElementById('adminCreatePassword').value;
+            const roleId = parseInt(document.getElementById('adminCreateRole').value);
+            
+            if (!username || !password) {
+                showAuthMessage('Заполните все поля', 'error');
+                return;
+            }
+            
+            const result = accountSystem.createUserByAdmin(username, password, roleId);
+            
+            if (result.success) {
+                showAuthMessage(result.message, 'success');
+                loadAdminPanelData();
+                updateUserInterface();
+                
+                // Очищаем поля
+                document.getElementById('adminCreateUsername').value = '';
+                document.getElementById('adminCreatePassword').value = '';
+            } else {
+                showAuthMessage(result.message, 'error');
+            }
         }
         
         // Глобальные функции для кнопок
-        window.editUser = function(userId) {
-            alert('Редактирование пользователя (функция в разработке)');
+        window.deleteUser = function(userId) {
+            if (!accountSystem.hasPermission('manage_users')) {
+                showAuthMessage('У вас нет прав для удаления пользователей', 'error');
+                return;
+            }
+            
+            if (confirm('Вы уверены, что хотите удалить этого пользователя?')) {
+                const success = accountSystem.deleteUser(userId);
+                if (success) {
+                    showAuthMessage('Пользователь успешно удален', 'success');
+                    loadAdminPanelData();
+                    updateUserInterface();
+                } else {
+                    showAuthMessage('Ошибка при удалении пользователя', 'error');
+                }
+            }
         };
         
         // Инициализация страницы
@@ -2108,19 +2462,42 @@
             // Обновляем интерфейс пользователя
             updateUserInterface();
             
+            // Обработчики для вкладок авторизации/регистрации
+            document.querySelectorAll('.auth-tab').forEach(tab => {
+                tab.addEventListener('click', function() {
+                    const tabId = this.getAttribute('data-tab');
+                    
+                    // Делаем активной выбранную вкладку
+                    document.querySelectorAll('.auth-tab').forEach(t => t.classList.remove('active'));
+                    this.classList.add('active');
+                    
+                    // Показываем соответствующий контент
+                    document.querySelectorAll('.auth-content').forEach(content => {
+                        content.classList.remove('active');
+                    });
+                    document.getElementById(`${tabId}-content`).classList.add('active');
+                });
+            });
+            
             // Обработчики для админ панели
             document.getElementById('createRole').addEventListener('click', createRole);
             document.getElementById('assignRole').addEventListener('click', assignRole);
             document.getElementById('saveAdminAccess').addEventListener('click', saveAdminAccess);
             document.getElementById('logoutAdmin').addEventListener('click', logout);
             document.getElementById('closeAdminPanel').addEventListener('click', closeAdminPanel);
+            document.getElementById('adminCreateUser').addEventListener('click', createUserByAdmin);
             
-            // Обработчик логина
+            // Обработчики форм
             document.getElementById('login-submit').addEventListener('click', login);
+            document.getElementById('register-submit').addEventListener('click', register);
             
-            // Обработчик Enter в форме логина
+            // Обработчики Enter в формах
             document.getElementById('login-password').addEventListener('keypress', function(e) {
                 if (e.key === 'Enter') login();
+            });
+            
+            document.getElementById('register-confirm').addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') register();
             });
             
             // Поиск пользователей
@@ -2155,9 +2532,17 @@
                     behavior: 'smooth'
                 });
             });
+            
+            // Показываем приветственное сообщение для новых посетителей
+            if (!localStorage.getItem('redjin_welcome_shown')) {
+                setTimeout(() => {
+                    showAuthMessage('Добро пожаловать на Redjin RP! Зарегистрируйтесь, чтобы получить доступ к аккаунту.', 'info');
+                    localStorage.setItem('redjin_welcome_shown', 'true');
+                }, 2000);
+            }
         });
         
-        // Modal management (существующий код)
+        // Modal management
         const contactBtn = document.getElementById('contact-btn');
         const infoBtn = document.getElementById('info-btn');
         const downloadBtn = document.getElementById('download-btn');
@@ -2167,7 +2552,7 @@
         const downloadModal = document.getElementById('download-modal');
         
         const closeButtons = document.querySelectorAll('.close-modal');
-        const modals = [contactModal, infoModal, downloadModal, loginModal];
+        const modals = [contactModal, infoModal, downloadModal, authModal];
         
         // Open modals
         contactBtn.addEventListener('click', () => openModal(contactModal));
@@ -2178,8 +2563,8 @@
         closeButtons.forEach(btn => {
             btn.addEventListener('click', function() {
                 const modalId = this.getAttribute('data-modal');
-                if (modalId === 'login') {
-                    closeModal(loginModal);
+                if (modalId === 'auth') {
+                    closeModal(authModal);
                 } else if (modalId === 'contact') {
                     closeModal(contactModal);
                 } else if (modalId === 'info') {
