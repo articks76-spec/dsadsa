@@ -970,7 +970,7 @@
             display: block;
         }
 
-        /* Модальные окна */
+        /* Модальные окна - ВЫСОКИЙ Z-INDEX */
         .modal-overlay {
             display: none;
             position: fixed;
@@ -979,7 +979,7 @@
             width: 100%;
             height: 100%;
             background-color: rgba(0, 0, 0, 0.85);
-            z-index: 2000;
+            z-index: 9999; /* ВЫШЕ ВСЕГО */
             align-items: center;
             justify-content: center;
             animation: fadeIn 0.3s ease;
@@ -997,6 +997,7 @@
             box-shadow: 0 20px 60px rgba(0, 0, 0, 0.7);
             position: relative;
             animation: modalSlideIn 0.4s ease;
+            z-index: 10000; /* ЕЩЕ ВЫШЕ */
         }
 
         .modal-header {
@@ -1334,13 +1335,12 @@
         <div class="container">
             <div class="header-content">
                 <div class="logo">
-                <div class="logo-icon">
-                <img src="https://pixsafe.online/i/cVOUm" alt="">
-                </div>
+                    <div class="logo-icon">🎮</div>
                     <div>
                         <div class="logo-text">REDJIN RP</div>
                         <div class="logo-subtitle">Российский ролевой проект в мире GTA</div>
                     </div>
+                </div>
                 
                 <div class="nav-links">
                     <a href="#about" class="nav-link">О проекте</a>
@@ -2657,17 +2657,30 @@
                 `;
                 
                 // Добавляем обработчики событий
-                document.getElementById('logoutBtn').addEventListener('click', logout);
-                if (accountSystem.canAccessAdminPanel()) {
-                    document.getElementById('openAdminPanel').addEventListener('click', openAdminPanel);
-                }
+                setTimeout(() => {
+                    const logoutBtn = document.getElementById('logoutBtn');
+                    if (logoutBtn) {
+                        logoutBtn.addEventListener('click', logout);
+                    }
+                    
+                    const openAdminPanelBtn = document.getElementById('openAdminPanel');
+                    if (openAdminPanelBtn && accountSystem.canAccessAdminPanel()) {
+                        openAdminPanelBtn.addEventListener('click', openAdminPanel);
+                    }
+                }, 100);
             } else {
                 userControls.innerHTML = `
                     <button class="auth-btn" id="loginBtn">
                         <i class="fas fa-sign-in-alt"></i> Войти / Регистрация
                     </button>
                 `;
-                document.getElementById('loginBtn').addEventListener('click', () => openModal(authModal));
+                
+                setTimeout(() => {
+                    const loginBtn = document.getElementById('loginBtn');
+                    if (loginBtn) {
+                        loginBtn.addEventListener('click', () => openModal(authModal));
+                    }
+                }, 100);
             }
             
             // Обновляем статистику пользователей
@@ -3010,10 +3023,10 @@
                     </div>
                     <div class="role-card-actions">
                         ${accountSystem.hasPermission('manage_roles') && !role.isDefault ? `
-                            <button class="btn-yellow btn-yellow-small" onclick="window.openEditRoleModal(${role.id})">
+                            <button class="btn-yellow btn-yellow-small edit-role-btn" data-role-id="${role.id}">
                                 <i class="fas fa-pencil-alt"></i> Редактировать
                             </button>
-                            <button class="btn btn-danger btn-small" onclick="window.deleteRole(${role.id})">
+                            <button class="btn btn-danger btn-small delete-role-btn" data-role-id="${role.id}">
                                 <i class="fas fa-trash"></i>
                             </button>
                         ` : ''}
@@ -3043,10 +3056,10 @@
                     </div>
                     <div class="user-card-actions">
                         ${accountSystem.hasPermission('manage_users') && user.id !== 1 ? `
-                            <button class="btn-yellow btn-yellow-small" onclick="window.openEditUserModal(${user.id})">
+                            <button class="btn-yellow btn-yellow-small edit-user-btn" data-user-id="${user.id}">
                                 <i class="fas fa-pencil-alt"></i> Редактировать
                             </button>
-                            <button class="btn btn-danger btn-small" onclick="window.deleteUser(${user.id})">
+                            <button class="btn btn-danger btn-small delete-user-btn" data-user-id="${user.id}">
                                 <i class="fas fa-trash"></i>
                             </button>
                         ` : ''}
@@ -3092,6 +3105,41 @@
                 option2.textContent = `${user.username} (${user.roleName})`;
                 adminPanelUser.appendChild(option2);
             });
+            
+            // Добавляем обработчики событий для динамически созданных кнопок
+            setTimeout(() => {
+                // Обработчики для кнопок редактирования пользователей
+                document.querySelectorAll('.edit-user-btn').forEach(btn => {
+                    btn.addEventListener('click', function() {
+                        const userId = parseInt(this.getAttribute('data-user-id'));
+                        openEditUserModal(userId);
+                    });
+                });
+                
+                // Обработчики для кнопок удаления пользователей
+                document.querySelectorAll('.delete-user-btn').forEach(btn => {
+                    btn.addEventListener('click', function() {
+                        const userId = parseInt(this.getAttribute('data-user-id'));
+                        deleteUser(userId);
+                    });
+                });
+                
+                // Обработчики для кнопок редактирования ролей
+                document.querySelectorAll('.edit-role-btn').forEach(btn => {
+                    btn.addEventListener('click', function() {
+                        const roleId = parseInt(this.getAttribute('data-role-id'));
+                        openEditRoleModal(roleId);
+                    });
+                });
+                
+                // Обработчики для кнопок удаления ролей
+                document.querySelectorAll('.delete-role-btn').forEach(btn => {
+                    btn.addEventListener('click', function() {
+                        const roleId = parseInt(this.getAttribute('data-role-id'));
+                        deleteRole(roleId);
+                    });
+                });
+            }, 100);
         }
         
         // Функции администратора
@@ -3216,10 +3264,8 @@
             }
         }
         
-        // Глобальные функции для кнопок
-        window.openEditUserModal = openEditUserModal;
-        window.openEditRoleModal = openEditRoleModal;
-        window.deleteUser = function(userId) {
+        // Удаление пользователя
+        function deleteUser(userId) {
             if (!accountSystem.hasPermission('manage_users')) {
                 showMessage('authMessage', 'У вас нет прав для удаления пользователей', 'error');
                 return;
@@ -3235,9 +3281,7 @@
                     showMessage('authMessage', result.message, 'error');
                 }
             }
-        };
-        
-        window.deleteRole = deleteRole;
+        }
         
         // Инициализация страницы
         document.addEventListener('DOMContentLoaded', function() {
@@ -3439,12 +3483,12 @@
         window.addEventListener('load', () => {
             animateStats();
         });
+        
+        // Глобальные функции для кнопок
+        window.openEditUserModal = openEditUserModal;
+        window.openEditRoleModal = openEditRoleModal;
+        window.deleteUser = deleteUser;
+        window.deleteRole = deleteRole;
     </script>
 </body>
 </html>
-
-
-
-
-
-
