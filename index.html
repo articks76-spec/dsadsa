@@ -13,85 +13,40 @@
     <link rel="apple-touch-icon" href="https://i.yapx.ru/cZVrw.png">
     
     <style>
-        /* Весь CSS стиль остается таким же, только добавляем новый блок для панели пользователей */
+        /* Все стили остаются такими же, только добавляем стили для желтых кнопок */
         
-        /* Добавляем новые стили для панели пользователей на главной */
-        .users-panel {
-            background: rgba(26, 26, 26, 0.8);
-            border-radius: 20px;
-            padding: 40px;
-            border: 1px solid rgba(139, 0, 0, 0.3);
-            box-shadow: var(--shadow);
-            backdrop-filter: blur(10px);
-            margin: 60px 0;
-            display: none; /* Сначала скрыто, показывается при наличии пользователей */
-        }
-        
-        .users-panel.active {
-            display: block;
-        }
-        
-        .users-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-            gap: 20px;
-            margin-top: 20px;
-        }
-        
-        .user-mini-card {
-            background: rgba(42, 42, 42, 0.5);
-            border-radius: 12px;
-            padding: 20px;
-            border: 1px solid rgba(139, 0, 0, 0.2);
-            transition: var(--transition);
-            display: flex;
-            align-items: center;
-            gap: 15px;
-        }
-        
-        .user-mini-card:hover {
-            transform: translateY(-5px);
-            border-color: var(--light-red);
-            box-shadow: var(--shadow);
-        }
-        
-        .user-mini-avatar {
-            width: 50px;
-            height: 50px;
-            background: linear-gradient(135deg, var(--primary-red), var(--accent-red));
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: bold;
-            font-size: 1.5rem;
-            color: white;
-        }
-        
-        .user-mini-info {
-            flex: 1;
-        }
-        
-        .user-mini-name {
-            font-weight: 600;
-            color: var(--text-light);
-            font-size: 1.1rem;
-            margin-bottom: 5px;
-        }
-        
-        .user-mini-role {
+        .btn-yellow {
+            background: linear-gradient(135deg, #FFD700, #FFA500) !important;
+            color: #333 !important;
+            border: none;
+            border-radius: 8px;
+            padding: 8px 15px;
             font-size: 0.9rem;
-            color: var(--gold);
-            background: rgba(212, 175, 55, 0.1);
-            padding: 3px 10px;
-            border-radius: 12px;
-            display: inline-block;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            box-shadow: 0 4px 15px rgba(255, 215, 0, 0.2);
         }
         
-        .user-mini-date {
-            font-size: 0.8rem;
-            color: var(--text-gray);
-            margin-top: 5px;
+        .btn-yellow:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 20px rgba(255, 215, 0, 0.3);
+            background: linear-gradient(135deg, #FFA500, #FF8C00) !important;
+            color: #000 !important;
+        }
+        
+        .btn-yellow-small {
+            padding: 6px 12px;
+            font-size: 0.85rem;
+        }
+        
+        /* Стили для кнопок в карточках */
+        .user-card-actions .btn-yellow,
+        .role-card-actions .btn-yellow {
+            margin-right: 5px;
         }
         
         /* Остальные стили остаются без изменений */
@@ -437,6 +392,85 @@
             font-size: 1.1rem;
             color: var(--text-gray);
             font-weight: 500;
+        }
+
+        /* Панель пользователей */
+        .users-panel {
+            background: rgba(26, 26, 26, 0.8);
+            border-radius: 20px;
+            padding: 40px;
+            border: 1px solid rgba(139, 0, 0, 0.3);
+            box-shadow: var(--shadow);
+            backdrop-filter: blur(10px);
+            margin: 60px 0;
+            display: none;
+        }
+        
+        .users-panel.active {
+            display: block;
+        }
+        
+        .users-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+        
+        .user-mini-card {
+            background: rgba(42, 42, 42, 0.5);
+            border-radius: 12px;
+            padding: 20px;
+            border: 1px solid rgba(139, 0, 0, 0.2);
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        
+        .user-mini-card:hover {
+            transform: translateY(-5px);
+            border-color: var(--light-red);
+            box-shadow: var(--shadow);
+        }
+        
+        .user-mini-avatar {
+            width: 50px;
+            height: 50px;
+            background: linear-gradient(135deg, var(--primary-red), var(--accent-red));
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 1.5rem;
+            color: white;
+        }
+        
+        .user-mini-info {
+            flex: 1;
+        }
+        
+        .user-mini-name {
+            font-weight: 600;
+            color: var(--text-light);
+            font-size: 1.1rem;
+            margin-bottom: 5px;
+        }
+        
+        .user-mini-role {
+            font-size: 0.9rem;
+            color: var(--gold);
+            background: rgba(212, 175, 55, 0.1);
+            padding: 3px 10px;
+            border-radius: 12px;
+            display: inline-block;
+        }
+        
+        .user-mini-date {
+            font-size: 0.8rem;
+            color: var(--text-gray);
+            margin-top: 5px;
         }
 
         /* Main Content Grid */
@@ -2150,6 +2184,7 @@
                         this.users = JSON.parse(savedUsers);
                     } catch (e) {
                         console.error('Ошибка загрузки пользователей:', e);
+                        this.users = [];
                     }
                 }
                 
@@ -2158,6 +2193,7 @@
                         this.roles = JSON.parse(savedRoles);
                     } catch (e) {
                         console.error('Ошибка загрузки ролей:', e);
+                        this.roles = [];
                     }
                 }
                 
@@ -2167,6 +2203,7 @@
                         this.currentUser = JSON.parse(savedUser);
                     } catch (e) {
                         console.error('Ошибка загрузки текущего пользователя:', e);
+                        this.currentUser = null;
                     }
                 }
             }
@@ -2634,7 +2671,7 @@
             
             // Обновляем статистику пользователей
             const stats = accountSystem.getStats();
-            onlineUsersElement.textContent = '10+'; // Фиксированное значение как просили
+            onlineUsersElement.textContent = '10+';
             
             // Обновляем панель пользователей
             updateUsersPanel();
@@ -2972,10 +3009,10 @@
                     </div>
                     <div class="role-card-actions">
                         ${accountSystem.hasPermission('manage_roles') && !role.isDefault ? `
-                            <button class="btn btn-orange btn-small" onclick="openEditRoleModal(${role.id})">
-                                <i class="fas fa-edit"></i>
+                            <button class="btn-yellow btn-yellow-small" onclick="window.openEditRoleModal(${role.id})">
+                                <i class="fas fa-pencil-alt"></i> Редактировать
                             </button>
-                            <button class="btn btn-danger btn-small" onclick="deleteRole(${role.id})">
+                            <button class="btn btn-danger btn-small" onclick="window.deleteRole(${role.id})">
                                 <i class="fas fa-trash"></i>
                             </button>
                         ` : ''}
@@ -3005,10 +3042,10 @@
                     </div>
                     <div class="user-card-actions">
                         ${accountSystem.hasPermission('manage_users') && user.id !== 1 ? `
-                            <button class="btn btn-orange btn-small" onclick="openEditUserModal(${user.id})">
-                                <i class="fas fa-edit"></i>
+                            <button class="btn-yellow btn-yellow-small" onclick="window.openEditUserModal(${user.id})">
+                                <i class="fas fa-pencil-alt"></i> Редактировать
                             </button>
-                            <button class="btn btn-danger btn-small" onclick="deleteUser(${user.id})">
+                            <button class="btn btn-danger btn-small" onclick="window.deleteUser(${user.id})">
                                 <i class="fas fa-trash"></i>
                             </button>
                         ` : ''}
@@ -3026,7 +3063,22 @@
             selectUser.innerHTML = '<option value="">Выберите пользователя</option>';
             adminPanelUser.innerHTML = '<option value="">Выберите пользователя</option>';
             selectRole.innerHTML = '<option value="">Выберите роль</option>';
-            adminCreateRole.innerHTML = '<option value="4">Пользователь</option>';
+            adminCreateRole.innerHTML = '<option value="4">Пользователь</option><option value="3">Модератор</option><option value="2">Администратор</option>';
+            
+            // Добавляем созданные роли в список для выбора
+            roles.forEach(role => {
+                if (role.id !== 1) { // Не показываем роль "Владелец"
+                    const option = document.createElement('option');
+                    option.value = role.id;
+                    option.textContent = role.name;
+                    selectRole.appendChild(option);
+                    
+                    const option2 = document.createElement('option');
+                    option2.value = role.id;
+                    option2.textContent = role.name;
+                    adminCreateRole.appendChild(option2);
+                }
+            });
             
             users.forEach(user => {
                 const option1 = document.createElement('option');
@@ -3038,21 +3090,6 @@
                 option2.value = user.id;
                 option2.textContent = `${user.username} (${user.roleName})`;
                 adminPanelUser.appendChild(option2);
-            });
-            
-            roles.forEach(role => {
-                const option = document.createElement('option');
-                option.value = role.id;
-                option.textContent = role.name;
-                selectRole.appendChild(option);
-                
-                // Для создания пользователя админом
-                if (role.id !== 1) { // Не показываем роль "Владелец"
-                    const option2 = document.createElement('option');
-                    option2.value = role.id;
-                    option2.textContent = role.name;
-                    adminCreateRole.appendChild(option2);
-                }
             });
         }
         
@@ -3179,6 +3216,8 @@
         }
         
         // Глобальные функции для кнопок
+        window.openEditUserModal = openEditUserModal;
+        window.openEditRoleModal = openEditRoleModal;
         window.deleteUser = function(userId) {
             if (!accountSystem.hasPermission('manage_users')) {
                 showMessage('authMessage', 'У вас нет прав для удаления пользователей', 'error');
@@ -3197,8 +3236,6 @@
             }
         };
         
-        window.openEditUserModal = openEditUserModal;
-        window.openEditRoleModal = openEditRoleModal;
         window.deleteRole = deleteRole;
         
         // Инициализация страницы
