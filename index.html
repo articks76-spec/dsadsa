@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Redjin RP — Твой путь в криминальном мире</title>
+    <title>Redjin RP — Напиши свою историю</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
     <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
@@ -11,7 +11,7 @@
     <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
     
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Exo+2:ital,wght@0,400;0,700;1,900&family=Inter:wght@300;400;700;900&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Exo+2:ital,wght@0,400;0,700;1,900&family=Inter:wght@300;400;600;900&display=swap');
         
         body {
             background-color: #0f0f0f;
@@ -20,58 +20,64 @@
             overflow-x: hidden;
         }
 
-        h1, h2, h3, .logo-font { font-family: 'Exo 2', sans-serif; }
+        h1, h2, h3, .brand-font { font-family: 'Exo 2', sans-serif; }
 
         /* Эффект падающего снега */
-        .snow-overlay {
+        .snow-layer {
             position: fixed;
             top: 0; left: 0; right: 0; bottom: 0;
             pointer-events: none;
             background-image: url('https://www.transparenttextures.com/patterns/snow.png');
-            opacity: 0.12;
-            z-index: 10;
+            opacity: 0.1;
+            z-index: 5;
         }
 
-        /* Иней и стекло (Glassmorphism) */
-        .frost-card {
-            background: rgba(15, 15, 15, 0.7);
-            backdrop-filter: blur(12px);
-            border: 1px solid rgba(230, 57, 70, 0.15);
-            position: relative;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+        /* Эффект инея и стекла */
+        .glass-panel {
+            background: rgba(15, 15, 15, 0.75);
+            backdrop-filter: blur(15px);
+            border: 1px solid rgba(230, 57, 70, 0.2);
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.8);
         }
 
-        /* Свечение текста Redjin */
-        .text-glow {
-            text-shadow: 0 0 15px rgba(230, 57, 70, 0.6);
+        /* Неоновое свечение Redjin */
+        .red-glow {
+            text-shadow: 0 0 20px rgba(230, 57, 70, 0.7), 0 0 40px rgba(230, 57, 70, 0.3);
         }
 
-        /* Анимация градиента */
-        .bg-red-gradient {
+        .btn-primary {
             background: linear-gradient(135deg, #e63946 0%, #9a031e 100%);
+            transition: all 0.3s ease;
+        }
+
+        .btn-primary:hover {
+            box-shadow: 0 0 30px rgba(230, 57, 70, 0.5);
+            transform: translateY(-2px);
         }
 
         .custom-input {
             background: rgba(255, 255, 255, 0.03);
-            border: 1px solid rgba(255, 255, 255, 0.08);
-            transition: all 0.3s ease;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            outline: none;
+            transition: border-color 0.3s ease;
         }
 
         .custom-input:focus {
             border-color: #e63946;
-            background: rgba(230, 57, 70, 0.05);
-            outline: none;
         }
+
+        /* Плавный скролл */
+        html { scroll-behavior: smooth; }
     </style>
 </head>
 <body>
     <div id="root"></div>
 
     <script type="text/babel">
-        const { useState, useEffect } = React;
+        const { useState } = React;
         const { motion, AnimatePresence } = FramerMotion;
 
-        // --- Модальное окно ---
+        // --- Компонент Модального Окна ---
         const Modal = ({ isOpen, onClose, title, children }) => (
             <AnimatePresence>
                 {isOpen && (
@@ -82,14 +88,15 @@
                             className="absolute inset-0 bg-black/90 backdrop-blur-md"
                         />
                         <motion.div 
-                            initial={{ scale: 0.8, y: 50, opacity: 0 }}
+                            initial={{ scale: 0.9, y: 30, opacity: 0 }}
                             animate={{ scale: 1, y: 0, opacity: 1 }}
-                            exit={{ scale: 0.8, y: 50, opacity: 0 }}
-                            className="frost-card w-full max-w-lg p-8 rounded-2xl z-10 border-t-2 border-[#e63946]"
+                            exit={{ scale: 0.9, y: 30, opacity: 0 }}
+                            className="glass-panel w-full max-w-lg p-8 rounded-3xl z-10 relative overflow-hidden"
                         >
-                            <div className="flex justify-between items-center mb-6">
-                                <h2 className="text-2xl font-black uppercase italic tracking-tight">{title}</h2>
-                                <button onClick={onClose} className="text-gray-500 hover:text-white transition text-2xl">✕</button>
+                            <div className="absolute top-0 left-0 w-full h-1 btn-primary"></div>
+                            <div className="flex justify-between items-center mb-8">
+                                <h2 className="text-2xl font-black uppercase italic tracking-tighter">{title}</h2>
+                                <button onClick={onClose} className="text-gray-500 hover:text-white transition">✕</button>
                             </div>
                             {children}
                         </motion.div>
@@ -98,139 +105,147 @@
             </AnimatePresence>
         );
 
+        // --- Основное приложение ---
         const App = () => {
-            const [modalInfo, setModalInfo] = useState(false);
-            const [modalDownload, setModalDownload] = useState(false);
+            const [isInfoOpen, setInfoOpen] = useState(false);
+            const [isDownloadOpen, setDownloadOpen] = useState(false);
 
             return (
                 <div className="relative min-h-screen">
-                    <div className="snow-overlay"></div>
+                    <div className="snow-layer"></div>
 
-                    {/* Навигация */}
-                    <header className="fixed top-0 w-full z-50 px-6 md:px-12 py-6 flex justify-between items-center bg-black/20 backdrop-blur-sm border-b border-white/5">
-                        <div className="text-3xl font-black italic logo-font flex items-center gap-1">
-                            <span className="text-white">RED</span>
-                            <span className="text-[#e63946] text-glow">JIN</span>
-                            <span className="ml-2 text-[10px] tracking-[0.4em] font-normal not-italic text-gray-400 border-l border-white/20 pl-3">ROLEPLAY</span>
+                    {/* Шапка (Header) */}
+                    <header className="fixed top-0 w-full z-50 px-6 md:px-16 py-8 flex justify-between items-center">
+                        <div className="flex items-center gap-4">
+                            <div className="text-3xl font-black italic brand-font tracking-tighter">
+                                RED<span className="text-[#e63946] red-glow">JIN</span>
+                            </div>
+                            <div className="hidden md:block h-6 w-[1px] bg-white/10 mx-2"></div>
+                            <div className="hidden md:block text-[10px] uppercase tracking-[0.4em] text-gray-500 font-bold">Roleplay Server</div>
                         </div>
-                        <nav className="hidden md:flex gap-8 uppercase text-[11px] font-black tracking-[0.2em]">
-                            <a href="#donate" className="hover:text-[#e63946] transition cursor-pointer">Донат</a>
-                            <a href="#ucp" className="bg-[#e63946] px-6 py-2 rounded shadow-[0_5px_15px_rgba(230,57,70,0.3)] hover:scale-105 transition-transform">Личный Кабинет</a>
+                        <nav className="flex items-center gap-8 uppercase text-[11px] font-black tracking-widest">
+                            <a href="#donate" className="hover:text-[#e63946] transition">Донат</a>
+                            <a href="#ucp" className="px-6 py-2 border border-[#e63946] text-[#e63946] rounded-full hover:bg-[#e63946] hover:text-white transition shadow-[0_0_15px_rgba(230,57,70,0.2)]">UCP</a>
                         </nav>
                     </header>
 
-                    {/* Hero Section */}
+                    {/* Главный экран (Hero) */}
                     <section className="relative h-screen flex flex-col items-center justify-center text-center px-4">
-                        <div className="absolute inset-0 bg-[url('https://images.wallpapersden.com/image/download/grand-theft-auto-v-fan-art_a2tuZ2mUmZqaraWkpJRmbmdlrWZnZ2U.jpg')] bg-cover bg-center opacity-30"></div>
-                        <div className="absolute inset-0 bg-gradient-to-t from-[#0f0f0f] via-transparent to-[#0f0f0f]/80"></div>
-                        
-                        <motion.div 
-                            initial={{ y: 30, opacity: 0 }} animate={{ y: 0, opacity: 1 }}
-                            className="z-20"
-                        >
-                            <h3 className="text-[#e63946] font-bold tracking-[0.6em] mb-4 uppercase text-xs md:text-sm">Атмосфера праздника на Redjin</h3>
-                            <h1 className="text-6xl md:text-9xl font-black uppercase italic mb-12 leading-none">
-                                ТВОЯ <span className="text-[#e63946] text-glow">ИСТОРИЯ</span> <br/> 
-                                <span className="text-4xl md:text-6xl font-light not-italic tracking-[0.3em]">НАЧИНАЕТСЯ ЗДЕСЬ</span>
-                            </h1>
+                        <div className="absolute inset-0 z-0">
+                            <div className="absolute inset-0 bg-gradient-to-b from-black/20 via-transparent to-[#0f0f0f] z-10"></div>
+                            <img 
+                                src="https://images.wallpapersden.com/image/download/grand-theft-auto-v-fan-art_a2tuZ2mUmZqaraWkpJRmbmdlrWZnZ2U.jpg" 
+                                className="w-full h-full object-cover opacity-30 grayscale-[0.5]" 
+                                alt="Background"
+                            />
+                        </div>
 
-                            <div className="flex flex-col md:flex-row justify-center gap-5">
-                                <a href="https://vk.com/@svircutq" target="_blank" className="px-10 py-4 bg-white/5 border border-white/10 hover:border-[#e63946] transition rounded font-black text-[11px] uppercase tracking-widest backdrop-blur-md">
-                                    Связаться с нами
+                        <motion.div 
+                            initial={{ opacity: 0, y: 40 }}
+                            whileInView={{ opacity: 1, y: 0 }}
+                            className="z-20 max-w-5xl"
+                        >
+                            <h4 className="text-[#e63946] font-bold tracking-[0.8em] uppercase text-[10px] mb-6">Новогоднее обновление уже в игре</h4>
+                            <h1 className="text-6xl md:text-9xl font-black uppercase italic leading-none mb-12">
+                                REDJIN <span className="text-transparent bg-clip-text btn-primary">EMPIRE</span>
+                            </h1>
+                            
+                            <div className="flex flex-wrap justify-center gap-4">
+                                <a href="https://vk.com/@svircutq" target="_blank" className="px-12 py-5 glass-panel rounded-xl font-bold uppercase text-[10px] tracking-widest hover:border-[#e63946] transition-all">
+                                    Связаться
                                 </a>
-                                <button onClick={() => setModalInfo(true)} className="px-10 py-4 bg-white/5 border border-white/10 hover:border-[#e63946] transition rounded font-black text-[11px] uppercase tracking-widest backdrop-blur-md">
-                                    Инфо о сервере
+                                <button onClick={() => setInfoOpen(true)} className="px-12 py-5 glass-panel rounded-xl font-bold uppercase text-[10px] tracking-widest hover:border-[#e63946] transition-all">
+                                    Инфо
                                 </button>
-                                <button onClick={() => setModalDownload(true)} className="px-10 py-4 bg-red-gradient rounded font-black text-[11px] uppercase tracking-widest shadow-[0_0_40px_rgba(230,57,70,0.4)] hover:shadow-[#e63946]/60 transition-all">
+                                <button onClick={() => setDownloadOpen(true)} className="px-12 py-5 btn-primary rounded-xl font-bold uppercase text-[10px] tracking-widest shadow-2xl">
                                     Начать играть
                                 </button>
                             </div>
                         </motion.div>
                     </section>
 
-                    {/* Donate System */}
-                    <section id="donate" className="py-32 bg-[#0c0c0c] border-y border-white/5 px-4">
-                        <div className="max-w-4xl mx-auto frost-card p-12 rounded-3xl">
-                            <h2 className="text-4xl font-black uppercase italic mb-2">Магазин <span className="text-[#e63946]">Redjin</span></h2>
-                            <p className="text-gray-500 mb-10 tracking-widest text-xs uppercase">Пополнение игрового счета</p>
+                    {/* Донат (Donate) */}
+                    <section id="donate" className="py-32 px-4">
+                        <div className="max-w-4xl mx-auto glass-panel p-12 rounded-[2rem] border-t-2 border-[#e63946]">
+                            <h2 className="text-4xl font-black uppercase italic mb-2 tracking-tighter">Пополнить баланс</h2>
+                            <p className="text-gray-500 text-xs uppercase tracking-widest mb-10">Поддержи проект Redjin RP и получи бонусы</p>
                             
                             <div className="grid md:grid-cols-3 gap-6">
-                                <input type="text" placeholder="Введите Ваш ник" className="custom-input p-4 rounded-xl text-sm" />
-                                <input type="number" placeholder="Сумма (₽)" className="custom-input p-4 rounded-xl text-sm" />
-                                <select className="custom-input p-4 rounded-xl text-sm text-gray-400">
-                                    <option>Redjin Server #1</option>
-                                    <option>Redjin Server #2</option>
+                                <input type="text" placeholder="Ваш никнейм" className="custom-input p-5 rounded-2xl text-sm w-full" />
+                                <input type="number" placeholder="Сумма (RUB)" className="custom-input p-5 rounded-2xl text-sm w-full" />
+                                <select className="custom-input p-5 rounded-2xl text-sm w-full text-gray-400">
+                                    <option>Сервер #1 (Red)</option>
+                                    <option>Сервер #2 (Jin)</option>
                                 </select>
-                                <button className="md:col-span-3 py-5 bg-red-gradient rounded-xl font-black uppercase tracking-[0.2em] text-sm hover:brightness-110 shadow-lg transition">
-                                    Оплатить заказ
+                                <button className="md:col-span-3 py-5 btn-primary rounded-2xl font-black uppercase tracking-[0.3em] text-xs">
+                                    Перейти к оплате
                                 </button>
                             </div>
                         </div>
                     </section>
 
-                    {/* UCP / Stats */}
+                    {/* Личный кабинет (UCP) */}
                     <section id="ucp" className="py-32 px-4 max-w-7xl mx-auto">
-                        <div className="flex flex-col md:flex-row justify-between items-end mb-16 gap-4">
-                            <div>
-                                <h2 className="text-5xl font-black uppercase italic leading-none">Личный <br/><span className="text-[#e63946]">Кабинет</span></h2>
-                            </div>
-                            <div className="text-right text-gray-500 text-xs tracking-tighter uppercase">Статистика обновлена: только что</div>
+                        <div className="mb-16">
+                            <h2 className="text-5xl font-black uppercase italic tracking-tighter">REDJIN <span className="text-[#e63946]">DASHBOARD</span></h2>
+                            <p className="text-gray-500 font-bold uppercase text-[10px] tracking-[0.3em] mt-2">Статистика твоего персонажа</p>
                         </div>
-
+                        
                         <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
                             {[
-                                { label: "Капитал", val: "₽ 2,850,000", sub: "Общий баланс" },
-                                { label: "Репутация", val: "42 LVL", sub: "Опытный игрок" },
-                                { label: "Транспорт", val: "MB CLS 63", sub: "Гос. номер: REDJIN" },
-                                { label: "Организация", val: "Правительство", sub: "Губернатор штата" }
-                            ].map((stat, i) => (
-                                <motion.div whileHover={{ y: -5 }} key={i} className="frost-card p-8 rounded-2xl border-l-4 border-l-[#e63946]">
-                                    <div className="text-[#e63946] text-[10px] font-black uppercase mb-3 tracking-widest">{stat.label}</div>
-                                    <div className="text-2xl font-black italic mb-2 tracking-tight">{stat.val}</div>
-                                    <div className="text-gray-500 text-[10px] uppercase font-bold">{stat.sub}</div>
+                                { label: "Баланс", val: "$4,250,000", sub: "Наличные + Банк", color: "#e63946" },
+                                { label: "Уровень", val: "32 LVL", sub: "Опыт: 142/180", color: "#fff" },
+                                { label: "Автопарк", val: "BMW M5 F90", sub: "ID: 4421", color: "#fff" },
+                                { label: "Организация", val: "Правительство", sub: "Мэр г. Южный", color: "#fff" }
+                            ].map((item, i) => (
+                                <motion.div key={i} whileHover={{ scale: 1.02 }} className="glass-panel p-8 rounded-3xl group">
+                                    <div className="text-[10px] font-black uppercase tracking-widest text-gray-500 mb-4 group-hover:text-[#e63946] transition">{item.label}</div>
+                                    <div className="text-3xl font-black italic tracking-tighter mb-2" style={{color: item.color}}>{item.val}</div>
+                                    <div className="text-[10px] uppercase font-bold text-gray-600 italic">{item.sub}</div>
                                 </motion.div>
                             ))}
                         </div>
                     </section>
 
-                    {/* Modals */}
-                    <Modal isOpen={modalInfo} onClose={() => setModalInfo(false)} title="О Redjin RP">
+                    {/* Модальные окна */}
+                    <Modal isOpen={isInfoOpen} onClose={() => setInfoOpen(false)} title="О Проекте Redjin">
                         <div className="space-y-6">
-                            <div className="bg-white/5 p-4 rounded-lg border-l border-[#e63946]">
-                                <h4 className="text-[#e63946] font-bold text-sm uppercase mb-1 italic">Почему мы?</h4>
-                                <p className="text-xs text-gray-400 leading-relaxed text-justify italic">
-                                    Redjin RP — это уникальный проект, где мы объединили суровый реализм и комфортный геймплей. Собственные разработки, эксклюзивные авто и стабильная экономика ждут тебя.
-                                </p>
+                            <div className="bg-white/5 p-5 rounded-2xl border-l-4 border-[#e63946]">
+                                <h4 className="font-bold text-sm mb-2 uppercase">Уникальный Лаунчер</h4>
+                                <p className="text-xs text-gray-400 leading-relaxed italic">Мы создали собственную программную среду для максимально плавного FPS и отсутствия вылетов.</p>
                             </div>
-                            <div className="flex justify-between items-center bg-black/50 p-4 rounded-lg border border-white/5">
-                                <span className="text-[10px] uppercase font-bold text-gray-500">IP Сервера</span>
-                                <span className="font-mono text-[#e63946] font-black">play.redjin-rp.ru</span>
+                            <div className="flex justify-between items-center p-5 bg-black/40 rounded-2xl">
+                                <span className="text-[10px] font-black uppercase text-gray-500">IP Адрес</span>
+                                <span className="font-mono text-[#e63946] font-black tracking-widest">PLAY.REDJIN-RP.RU</span>
                             </div>
                         </div>
                     </Modal>
 
-                    <Modal isOpen={modalDownload} onClose={() => setModalDownload(false)} title="Установка">
+                    <Modal isOpen={isDownloadOpen} onClose={() => setDownloadOpen(false)} title="Начать Игру">
                         <div className="grid gap-4">
-                            <a href="https://disk.yandex.ru/d/tHsRntPK2gqyoA" target="_blank" className="group flex items-center justify-between p-6 bg-red-gradient rounded-xl hover:scale-[1.02] transition-transform">
-                                <div>
-                                    <h4 className="font-black uppercase italic italic text-lg">Windows Launcher</h4>
-                                    <p className="text-[10px] font-bold opacity-70">Автоматическая установка игры</p>
+                            <a href="https://disk.yandex.ru/d/tHsRntPK2gqyoA" target="_blank" className="btn-primary p-6 rounded-2xl flex justify-between items-center group">
+                                <div className="text-left">
+                                    <div className="font-black italic uppercase text-lg">Версия для PC</div>
+                                    <div className="text-[10px] opacity-70 uppercase font-bold">Рекомендуется</div>
                                 </div>
-                                <span className="text-2xl group-hover:translate-x-2 transition-transform">→</span>
+                                <span className="text-2xl transition group-hover:translate-x-2">→</span>
                             </a>
-                            <div className="flex items-center justify-between p-6 bg-white/5 rounded-xl opacity-30 cursor-not-allowed">
-                                <div>
-                                    <h4 className="font-black uppercase italic text-lg">Mobile Client</h4>
-                                    <p className="text-[10px] font-bold italic uppercase">В разработке (Скоро)</p>
+                            <div className="p-6 glass-panel rounded-2xl flex justify-between items-center opacity-40 cursor-not-allowed">
+                                <div className="text-left">
+                                    <div className="font-black italic uppercase text-lg">Mobile App</div>
+                                    <div className="text-[10px] uppercase font-bold text-[#e63946]">Временно недоступно</div>
                                 </div>
-                                <span className="text-[10px] font-black border border-white/20 px-2 py-1 rounded">CLOSE-BETA</span>
+                                <span className="text-xs font-black uppercase tracking-tighter">Скоро</span>
                             </div>
                         </div>
                     </Modal>
 
-                    <footer className="py-20 text-center border-t border-white/5 bg-black/40">
-                        <div className="text-xl font-black italic mb-4 opacity-40">RED<span className="text-[#e63946]">JIN</span></div>
-                        <p className="text-[9px] text-gray-600 uppercase tracking-[0.4em]">Designed for premium players &copy; 2026 Redjin RP Global</p>
+                    {/* Подвал (Footer) */}
+                    <footer className="py-20 text-center border-t border-white/5">
+                        <div className="text-2xl font-black italic brand-font mb-6 opacity-30">RED<span className="text-[#e63946]">JIN</span></div>
+                        <p className="text-[9px] text-gray-600 uppercase tracking-[0.5em] font-bold">
+                            &copy; 2026 REDJIN RP GLOBAL. Все права защищены.
+                        </p>
                     </footer>
                 </div>
             );
