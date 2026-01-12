@@ -1,258 +1,204 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Redjin RP — Напиши свою историю</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
-    <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
-    <script src="https://unpkg.com/framer-motion@10.16.4/dist/framer-motion.js"></script>
-    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
-    
-    <style>
-        @import url('https://fonts.googleapis.com/css2?family=Exo+2:ital,wght@0,400;0,700;1,900&family=Inter:wght@300;400;600;900&display=swap');
-        
-        body {
-            background-color: #0f0f0f;
-            color: white;
-            font-family: 'Inter', sans-serif;
-            overflow-x: hidden;
-        }
+  <meta charset="UTF-8">
+  <title>Redjin RP — GTA RolePlay</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-        h1, h2, h3, .brand-font { font-family: 'Exo 2', sans-serif; }
+  <!-- Tailwind CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
 
-        /* Эффект падающего снега */
-        .snow-layer {
-            position: fixed;
-            top: 0; left: 0; right: 0; bottom: 0;
-            pointer-events: none;
-            background-image: url('https://www.transparenttextures.com/patterns/snow.png');
-            opacity: 0.1;
-            z-index: 5;
-        }
+  <!-- Google Font -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;900&display=swap" rel="stylesheet">
 
-        /* Эффект инея и стекла */
-        .glass-panel {
-            background: rgba(15, 15, 15, 0.75);
-            backdrop-filter: blur(15px);
-            border: 1px solid rgba(230, 57, 70, 0.2);
-            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.8);
-        }
+  <style>
+    body {
+      font-family: 'Inter', sans-serif;
+      background-color: #0f0f0f;
+      color: #ffffff;
+      overflow-x: hidden;
+    }
 
-        /* Неоновое свечение Redjin */
-        .red-glow {
-            text-shadow: 0 0 20px rgba(230, 57, 70, 0.7), 0 0 40px rgba(230, 57, 70, 0.3);
-        }
+    /* Snow effect */
+    .snowflake {
+      position: fixed;
+      top: -10px;
+      color: rgba(255,255,255,0.15);
+      font-size: 1em;
+      user-select: none;
+      animation: fall linear infinite;
+      z-index: 1;
+    }
 
-        .btn-primary {
-            background: linear-gradient(135deg, #e63946 0%, #9a031e 100%);
-            transition: all 0.3s ease;
-        }
+    @keyframes fall {
+      to {
+        transform: translateY(110vh);
+      }
+    }
 
-        .btn-primary:hover {
-            box-shadow: 0 0 30px rgba(230, 57, 70, 0.5);
-            transform: translateY(-2px);
-        }
+    /* Glass effect */
+    .glass {
+      background: rgba(20, 20, 20, 0.65);
+      backdrop-filter: blur(14px);
+      border: 1px solid rgba(230, 57, 70, 0.25);
+      box-shadow: 0 0 40px rgba(230, 57, 70, 0.15);
+    }
 
-        .custom-input {
-            background: rgba(255, 255, 255, 0.03);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            outline: none;
-            transition: border-color 0.3s ease;
-        }
+    .neon {
+      box-shadow: 0 0 15px rgba(230,57,70,0.6);
+    }
 
-        .custom-input:focus {
-            border-color: #e63946;
-        }
-
-        /* Плавный скролл */
-        html { scroll-behavior: smooth; }
-    </style>
+    /* Modal animation */
+    .modal {
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.3s ease;
+    }
+    .modal.active {
+      opacity: 1;
+      pointer-events: auto;
+    }
+  </style>
 </head>
+
 <body>
-    <div id="root"></div>
 
-    <script type="text/babel">
-        const { useState } = React;
-        const { motion, AnimatePresence } = FramerMotion;
+<!-- Snow -->
+<script>
+  for (let i = 0; i < 40; i++) {
+    let snow = document.createElement("div");
+    snow.className = "snowflake";
+    snow.innerHTML = "❄";
+    snow.style.left = Math.random() * 100 + "vw";
+    snow.style.animationDuration = 5 + Math.random() * 10 + "s";
+    snow.style.fontSize = 10 + Math.random() * 14 + "px";
+    document.body.appendChild(snow);
+  }
+</script>
 
-        // --- Компонент Модального Окна ---
-        const Modal = ({ isOpen, onClose, title, children }) => (
-            <AnimatePresence>
-                {isOpen && (
-                    <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
-                        <motion.div 
-                            initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-                            onClick={onClose}
-                            className="absolute inset-0 bg-black/90 backdrop-blur-md"
-                        />
-                        <motion.div 
-                            initial={{ scale: 0.9, y: 30, opacity: 0 }}
-                            animate={{ scale: 1, y: 0, opacity: 1 }}
-                            exit={{ scale: 0.9, y: 30, opacity: 0 }}
-                            className="glass-panel w-full max-w-lg p-8 rounded-3xl z-10 relative overflow-hidden"
-                        >
-                            <div className="absolute top-0 left-0 w-full h-1 btn-primary"></div>
-                            <div className="flex justify-between items-center mb-8">
-                                <h2 className="text-2xl font-black uppercase italic tracking-tighter">{title}</h2>
-                                <button onClick={onClose} className="text-gray-500 hover:text-white transition">✕</button>
-                            </div>
-                            {children}
-                        </motion.div>
-                    </div>
-                )}
-            </AnimatePresence>
-        );
+<!-- HEADER -->
+<header class="fixed top-0 left-0 w-full z-50 bg-black/60 backdrop-blur border-b border-red-800/30">
+  <div class="max-w-7xl mx-auto flex justify-between items-center px-6 py-4">
+    <div class="text-2xl font-black text-red-500">REDJIN RP</div>
+    <nav class="space-x-6 text-sm">
+      <a href="#donate" class="hover:text-red-500 transition">Донат</a>
+      <a href="#ucp" class="hover:text-red-500 transition">Личный кабинет</a>
+    </nav>
+  </div>
+</header>
 
-        // --- Основное приложение ---
-        const App = () => {
-            const [isInfoOpen, setInfoOpen] = useState(false);
-            const [isDownloadOpen, setDownloadOpen] = useState(false);
+<!-- HERO -->
+<section class="relative h-screen flex items-center justify-center text-center">
+  <div class="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1606925797300-0b35e9d1794d')] bg-cover bg-center blur-sm"></div>
+  <div class="absolute inset-0 bg-black/70"></div>
 
-            return (
-                <div className="relative min-h-screen">
-                    <div className="snow-layer"></div>
+  <div class="relative z-10 max-w-3xl px-6">
+    <h1 class="text-5xl md:text-6xl font-black text-red-500 mb-6 neon">
+      REDJIN RP
+    </h1>
+    <p class="text-gray-300 mb-10">
+      Премиальный GTA RolePlay проект в тёмно-красном стиле.  
+      Атмосфера. Качество. Уникальный RP.
+    </p>
 
-                    {/* Шапка (Header) */}
-                    <header className="fixed top-0 w-full z-50 px-6 md:px-16 py-8 flex justify-between items-center">
-                        <div className="flex items-center gap-4">
-                            <div className="text-3xl font-black italic brand-font tracking-tighter">
-                                RED<span className="text-[#e63946] red-glow">JIN</span>
-                            </div>
-                            <div className="hidden md:block h-6 w-[1px] bg-white/10 mx-2"></div>
-                            <div className="hidden md:block text-[10px] uppercase tracking-[0.4em] text-gray-500 font-bold">Roleplay Server</div>
-                        </div>
-                        <nav className="flex items-center gap-8 uppercase text-[11px] font-black tracking-widest">
-                            <a href="#donate" className="hover:text-[#e63946] transition">Донат</a>
-                            <a href="#ucp" className="px-6 py-2 border border-[#e63946] text-[#e63946] rounded-full hover:bg-[#e63946] hover:text-white transition shadow-[0_0_15px_rgba(230,57,70,0.2)]">UCP</a>
-                        </nav>
-                    </header>
+    <div class="flex flex-col md:flex-row gap-4 justify-center">
+      <a href="https://vk.com/@svircutq" target="_blank"
+         class="px-8 py-4 bg-red-600 hover:bg-red-700 rounded-lg neon transition">
+        Связаться с владельцем
+      </a>
 
-                    {/* Главный экран (Hero) */}
-                    <section className="relative h-screen flex flex-col items-center justify-center text-center px-4">
-                        <div className="absolute inset-0 z-0">
-                            <div className="absolute inset-0 bg-gradient-to-b from-black/20 via-transparent to-[#0f0f0f] z-10"></div>
-                            <img 
-                                src="https://images.wallpapersden.com/image/download/grand-theft-auto-v-fan-art_a2tuZ2mUmZqaraWkpJRmbmdlrWZnZ2U.jpg" 
-                                className="w-full h-full object-cover opacity-30 grayscale-[0.5]" 
-                                alt="Background"
-                            />
-                        </div>
+      <button onclick="openModal('infoModal')"
+        class="px-8 py-4 border border-red-600 hover:bg-red-600/20 rounded-lg transition">
+        Информация о проекте
+      </button>
 
-                        <motion.div 
-                            initial={{ opacity: 0, y: 40 }}
-                            whileInView={{ opacity: 1, y: 0 }}
-                            className="z-20 max-w-5xl"
-                        >
-                            <h4 className="text-[#e63946] font-bold tracking-[0.8em] uppercase text-[10px] mb-6">Новогоднее обновление уже в игре</h4>
-                            <h1 className="text-6xl md:text-9xl font-black uppercase italic leading-none mb-12">
-                                REDJIN <span className="text-transparent bg-clip-text btn-primary">EMPIRE</span>
-                            </h1>
-                            
-                            <div className="flex flex-wrap justify-center gap-4">
-                                <a href="https://vk.com/@svircutq" target="_blank" className="px-12 py-5 glass-panel rounded-xl font-bold uppercase text-[10px] tracking-widest hover:border-[#e63946] transition-all">
-                                    Связаться
-                                </a>
-                                <button onClick={() => setInfoOpen(true)} className="px-12 py-5 glass-panel rounded-xl font-bold uppercase text-[10px] tracking-widest hover:border-[#e63946] transition-all">
-                                    Инфо
-                                </button>
-                                <button onClick={() => setDownloadOpen(true)} className="px-12 py-5 btn-primary rounded-xl font-bold uppercase text-[10px] tracking-widest shadow-2xl">
-                                    Начать играть
-                                </button>
-                            </div>
-                        </motion.div>
-                    </section>
+      <button onclick="openModal('downloadModal')"
+        class="px-8 py-4 bg-red-900 hover:bg-red-700 rounded-lg transition">
+        Скачать игру
+      </button>
+    </div>
+  </div>
+</section>
 
-                    {/* Донат (Donate) */}
-                    <section id="donate" className="py-32 px-4">
-                        <div className="max-w-4xl mx-auto glass-panel p-12 rounded-[2rem] border-t-2 border-[#e63946]">
-                            <h2 className="text-4xl font-black uppercase italic mb-2 tracking-tighter">Пополнить баланс</h2>
-                            <p className="text-gray-500 text-xs uppercase tracking-widest mb-10">Поддержи проект Redjin RP и получи бонусы</p>
-                            
-                            <div className="grid md:grid-cols-3 gap-6">
-                                <input type="text" placeholder="Ваш никнейм" className="custom-input p-5 rounded-2xl text-sm w-full" />
-                                <input type="number" placeholder="Сумма (RUB)" className="custom-input p-5 rounded-2xl text-sm w-full" />
-                                <select className="custom-input p-5 rounded-2xl text-sm w-full text-gray-400">
-                                    <option>Сервер #1 (Red)</option>
-                                    <option>Сервер #2 (Jin)</option>
-                                </select>
-                                <button className="md:col-span-3 py-5 btn-primary rounded-2xl font-black uppercase tracking-[0.3em] text-xs">
-                                    Перейти к оплате
-                                </button>
-                            </div>
-                        </div>
-                    </section>
+<!-- DONATE -->
+<section id="donate" class="py-24 px-6">
+  <div class="max-w-4xl mx-auto glass rounded-xl p-8">
+    <h2 class="text-3xl font-bold text-red-500 mb-6">Авто-донат</h2>
 
-                    {/* Личный кабинет (UCP) */}
-                    <section id="ucp" className="py-32 px-4 max-w-7xl mx-auto">
-                        <div className="mb-16">
-                            <h2 className="text-5xl font-black uppercase italic tracking-tighter">REDJIN <span className="text-[#e63946]">DASHBOARD</span></h2>
-                            <p className="text-gray-500 font-bold uppercase text-[10px] tracking-[0.3em] mt-2">Статистика твоего персонажа</p>
-                        </div>
-                        
-                        <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-                            {[
-                                { label: "Баланс", val: "$4,250,000", sub: "Наличные + Банк", color: "#e63946" },
-                                { label: "Уровень", val: "32 LVL", sub: "Опыт: 142/180", color: "#fff" },
-                                { label: "Автопарк", val: "BMW M5 F90", sub: "ID: 4421", color: "#fff" },
-                                { label: "Организация", val: "Правительство", sub: "Мэр г. Южный", color: "#fff" }
-                            ].map((item, i) => (
-                                <motion.div key={i} whileHover={{ scale: 1.02 }} className="glass-panel p-8 rounded-3xl group">
-                                    <div className="text-[10px] font-black uppercase tracking-widest text-gray-500 mb-4 group-hover:text-[#e63946] transition">{item.label}</div>
-                                    <div className="text-3xl font-black italic tracking-tighter mb-2" style={{color: item.color}}>{item.val}</div>
-                                    <div className="text-[10px] uppercase font-bold text-gray-600 italic">{item.sub}</div>
-                                </motion.div>
-                            ))}
-                        </div>
-                    </section>
+    <div class="grid md:grid-cols-3 gap-4">
+      <input placeholder="Никнейм" class="bg-black/40 p-3 rounded border border-red-800">
+      <input placeholder="Сумма ₽" class="bg-black/40 p-3 rounded border border-red-800">
+      <select class="bg-black/40 p-3 rounded border border-red-800">
+        <option>Redjin RP | Server 1</option>
+      </select>
+    </div>
 
-                    {/* Модальные окна */}
-                    <Modal isOpen={isInfoOpen} onClose={() => setInfoOpen(false)} title="О Проекте Redjin">
-                        <div className="space-y-6">
-                            <div className="bg-white/5 p-5 rounded-2xl border-l-4 border-[#e63946]">
-                                <h4 className="font-bold text-sm mb-2 uppercase">Уникальный Лаунчер</h4>
-                                <p className="text-xs text-gray-400 leading-relaxed italic">Мы создали собственную программную среду для максимально плавного FPS и отсутствия вылетов.</p>
-                            </div>
-                            <div className="flex justify-between items-center p-5 bg-black/40 rounded-2xl">
-                                <span className="text-[10px] font-black uppercase text-gray-500">IP Адрес</span>
-                                <span className="font-mono text-[#e63946] font-black tracking-widest">PLAY.REDJIN-RP.RU</span>
-                            </div>
-                        </div>
-                    </Modal>
+    <button class="mt-6 px-6 py-3 bg-red-600 rounded hover:bg-red-700 transition neon">
+      Перейти к оплате
+    </button>
 
-                    <Modal isOpen={isDownloadOpen} onClose={() => setDownloadOpen(false)} title="Начать Игру">
-                        <div className="grid gap-4">
-                            <a href="https://disk.yandex.ru/d/tHsRntPK2gqyoA" target="_blank" className="btn-primary p-6 rounded-2xl flex justify-between items-center group">
-                                <div className="text-left">
-                                    <div className="font-black italic uppercase text-lg">Версия для PC</div>
-                                    <div className="text-[10px] opacity-70 uppercase font-bold">Рекомендуется</div>
-                                </div>
-                                <span className="text-2xl transition group-hover:translate-x-2">→</span>
-                            </a>
-                            <div className="p-6 glass-panel rounded-2xl flex justify-between items-center opacity-40 cursor-not-allowed">
-                                <div className="text-left">
-                                    <div className="font-black italic uppercase text-lg">Mobile App</div>
-                                    <div className="text-[10px] uppercase font-bold text-[#e63946]">Временно недоступно</div>
-                                </div>
-                                <span className="text-xs font-black uppercase tracking-tighter">Скоро</span>
-                            </div>
-                        </div>
-                    </Modal>
+    <p class="text-xs text-gray-400 mt-4">
+      * Интеграция UnitPay / AnyPay подключается через API
+    </p>
+  </div>
+</section>
 
-                    {/* Подвал (Footer) */}
-                    <footer className="py-20 text-center border-t border-white/5">
-                        <div className="text-2xl font-black italic brand-font mb-6 opacity-30">RED<span className="text-[#e63946]">JIN</span></div>
-                        <p className="text-[9px] text-gray-600 uppercase tracking-[0.5em] font-bold">
-                            &copy; 2026 REDJIN RP GLOBAL. Все права защищены.
-                        </p>
-                    </footer>
-                </div>
-            );
-        };
+<!-- UCP -->
+<section id="ucp" class="py-24 px-6 bg-black/40">
+  <div class="max-w-6xl mx-auto">
+    <h2 class="text-3xl font-bold text-red-500 mb-8">Личный кабинет</h2>
 
-        const root = ReactDOM.createRoot(document.getElementById('root'));
-        root.render(<App />);
-    </script>
+    <div class="grid md:grid-cols-4 gap-6">
+      <div class="glass p-6 rounded-xl">💰 Деньги<br><b>$1 250 000</b></div>
+      <div class="glass p-6 rounded-xl">⭐ Уровень<br><b>15</b></div>
+      <div class="glass p-6 rounded-xl">🚗 Машина<br><b>BMW M5</b></div>
+      <div class="glass p-6 rounded-xl">💼 Работа<br><b>Бизнесмен</b></div>
+    </div>
+  </div>
+</section>
+
+<!-- INFO MODAL -->
+<div id="infoModal" class="modal fixed inset-0 bg-black/70 flex items-center justify-center z-50">
+  <div class="glass p-8 rounded-xl max-w-lg w-full">
+    <h3 class="text-2xl text-red-500 mb-4">О проекте Redjin RP</h3>
+    <ul class="space-y-2 text-gray-300">
+      <li>• Уникальная RP-экономика</li>
+      <li>• Активная администрация</li>
+      <li>• Частые обновления</li>
+      <li>• IP сервера: 127.0.0.1</li>
+    </ul>
+    <button onclick="closeModal('infoModal')" class="mt-6 text-red-500">Закрыть</button>
+  </div>
+</div>
+
+<!-- DOWNLOAD MODAL -->
+<div id="downloadModal" class="modal fixed inset-0 bg-black/70 flex items-center justify-center z-50">
+  <div class="glass p-8 rounded-xl max-w-md w-full">
+    <h3 class="text-2xl text-red-500 mb-6">Скачать игру</h3>
+
+    <a href="https://disk.yandex.ru/d/tHsRntPK2gqyoA" target="_blank"
+       class="block mb-4 px-6 py-3 bg-red-600 rounded text-center hover:bg-red-700 transition">
+      Скачать для PC
+    </a>
+
+    <div class="px-6 py-3 bg-gray-600/40 rounded text-center text-gray-400 cursor-not-allowed">
+      Скачать для MOBILE<br>
+      <span class="text-xs">Временно недоступно</span>
+    </div>
+
+    <button onclick="closeModal('downloadModal')" class="mt-6 text-red-500">Закрыть</button>
+  </div>
+</div>
+
+<!-- MODAL SCRIPT -->
+<script>
+  function openModal(id) {
+    document.getElementById(id).classList.add('active');
+  }
+  function closeModal(id) {
+    document.getElementById(id).classList.remove('active');
+  }
+</script>
+
 </body>
 </html>
