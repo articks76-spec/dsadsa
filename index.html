@@ -1,204 +1,926 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-  <meta charset="UTF-8">
-  <title>Redjin RP — GTA RolePlay</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DELVIZZ STUDIO | Разработка модов для Copy Radmir RP</title>
+    <link rel="icon" type="image/x-icon" href="studio_avatar_favicon.ico">
+    <style>
+        :root {
+            --color-dark: #0a0a0f;
+            --color-dark-light: #12121c;
+            --color-purple: #8a2be2;
+            --color-purple-bright: #9d4edd;
+            --color-purple-glow: rgba(157, 78, 221, 0.5);
+            --color-text: #f0e6ff;
+            --color-text-secondary: #c0a3ff;
+        }
 
-  <!-- Tailwind CDN -->
-  <script src="https://cdn.tailwindcss.com"></script>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
 
-  <!-- Google Font -->
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;900&display=swap" rel="stylesheet">
+        body {
+            background-color: var(--color-dark);
+            color: var(--color-text);
+            min-height: 100vh;
+            overflow-x: hidden;
+            opacity: 1;
+            transition: opacity 0.8s ease-out;
+        }
 
-  <style>
-    body {
-      font-family: 'Inter', sans-serif;
-      background-color: #0f0f0f;
-      color: #ffffff;
-      overflow-x: hidden;
-    }
+        /* ===== ЗАГРУЗОЧНЫЙ ЭКРАН ===== */
+        #loader {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, var(--color-dark) 0%, #1a0b2e 70%, #2d0b5a 100%);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+            transition: opacity 0.8s ease-out, visibility 0.8s;
+        }
 
-    /* Snow effect */
-    .snowflake {
-      position: fixed;
-      top: -10px;
-      color: rgba(255,255,255,0.15);
-      font-size: 1em;
-      user-select: none;
-      animation: fall linear infinite;
-      z-index: 1;
-    }
+        #loader.hidden {
+            opacity: 0;
+            visibility: hidden;
+        }
 
-    @keyframes fall {
-      to {
-        transform: translateY(110vh);
-      }
-    }
+        .loader-title {
+            font-size: 4.5rem;
+            font-weight: 800;
+            text-align: center;
+            margin-bottom: 1.5rem;
+            background: linear-gradient(to right, #fff 30%, var(--color-purple-bright) 70%);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            letter-spacing: 2px;
+            text-shadow: 0 0 15px var(--color-purple-glow);
+            line-height: 1.1;
+        }
 
-    /* Glass effect */
-    .glass {
-      background: rgba(20, 20, 20, 0.65);
-      backdrop-filter: blur(14px);
-      border: 1px solid rgba(230, 57, 70, 0.25);
-      box-shadow: 0 0 40px rgba(230, 57, 70, 0.15);
-    }
+        .loader-subtitle {
+            font-size: 1.8rem;
+            color: var(--color-text-secondary);
+            margin-bottom: 3rem;
+            letter-spacing: 4px;
+            text-transform: uppercase;
+        }
 
-    .neon {
-      box-shadow: 0 0 15px rgba(230,57,70,0.6);
-    }
+        .spinner {
+            width: 80px;
+            height: 80px;
+            border: 6px solid rgba(255, 255, 255, 0.1);
+            border-radius: 50%;
+            border-top-color: var(--color-purple);
+            animation: spin 1.2s cubic-bezier(0.68, -0.55, 0.27, 1.55) infinite;
+            margin-bottom: 3rem;
+            box-shadow: 0 0 25px var(--color-purple-glow);
+        }
 
-    /* Modal animation */
-    .modal {
-      opacity: 0;
-      pointer-events: none;
-      transition: opacity 0.3s ease;
-    }
-    .modal.active {
-      opacity: 1;
-      pointer-events: auto;
-    }
-  </style>
+        @keyframes spin {
+            100% { transform: rotate(360deg); }
+        }
+
+        .loading-messages {
+            height: 30px;
+            text-align: center;
+            font-size: 1.2rem;
+            color: var(--color-text-secondary);
+            position: relative;
+            width: 80%;
+            max-width: 500px;
+        }
+
+        .loading-message {
+            position: absolute;
+            width: 100%;
+            opacity: 0;
+            animation: messageFade 12s infinite ease-in-out;
+        }
+
+        .loading-message:nth-child(1) { animation-delay: 0s; }
+        .loading-message:nth-child(2) { animation-delay: 3s; }
+        .loading-message:nth-child(3) { animation-delay: 6s; }
+        .loading-message:nth-child(4) { animation-delay: 9s; }
+
+        @keyframes messageFade {
+            0%, 20% { opacity: 0; transform: translateY(10px); }
+            25%, 40% { opacity: 1; transform: translateY(0); }
+            45%, 100% { opacity: 0; transform: translateY(-10px); }
+        }
+
+        /* ===== ОБЩИЕ СТИЛИ ДЛЯ ВСЕХ СТРАНИЦ ===== */
+        .page {
+            display: none;
+            opacity: 0;
+            transform: translateY(20px);
+            animation: pageAppear 0.7s ease-out forwards;
+        }
+
+        .page.active {
+            display: block;
+        }
+
+        @keyframes pageAppear {
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        /* Кнопка Назад */
+        .back-button {
+            display: inline-flex;
+            align-items: center;
+            background: rgba(138, 43, 226, 0.15);
+            color: var(--color-purple-bright);
+            border: 2px solid var(--color-purple);
+            border-radius: 10px;
+            padding: 0.8rem 1.5rem;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-bottom: 2rem;
+            text-decoration: none;
+        }
+
+        .back-button:hover {
+            background: rgba(138, 43, 226, 0.3);
+            transform: translateX(-5px);
+            box-shadow: 0 5px 15px rgba(138, 43, 226, 0.3);
+        }
+
+        .back-button:before {
+            content: "←";
+            margin-right: 8px;
+            font-size: 1.3rem;
+        }
+
+        /* ===== ГЛАВНАЯ СТРАНИЦА ===== */
+        #main-page header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding-bottom: 2rem;
+            border-bottom: 2px solid rgba(138, 43, 226, 0.3);
+            margin-bottom: 3rem;
+            flex-wrap: wrap;
+        }
+
+        .logo-section {
+            display: flex;
+            align-items: center;
+            gap: 1.5rem;
+        }
+
+        .avatar {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 3px solid var(--color-purple);
+            box-shadow: 0 0 25px var(--color-purple-glow);
+            animation: pulse 4s infinite alternate;
+        }
+
+        @keyframes pulse {
+            0% { box-shadow: 0 0 15px var(--color-purple-glow); }
+            100% { box-shadow: 0 0 30px var(--color-purple-bright); }
+        }
+
+        .studio-name h1 {
+            font-size: 2.8rem;
+            background: linear-gradient(to right, #fff, var(--color-purple-bright));
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            letter-spacing: 1px;
+        }
+
+        .studio-name p {
+            color: var(--color-text-secondary);
+            font-size: 1.1rem;
+        }
+
+        /* Секция услуг на главной */
+        .services {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 2.5rem;
+            margin: 4rem 0;
+        }
+
+        .service-card {
+            background: linear-gradient(145deg, rgba(26, 11, 46, 0.8), rgba(18, 18, 28, 0.9));
+            border-radius: 20px;
+            padding: 2.5rem;
+            border: 1px solid rgba(138, 43, 226, 0.3);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+            transition: all 0.4s ease;
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+        }
+
+        .service-card:hover {
+            transform: translateY(-10px);
+            border-color: var(--color-purple);
+            box-shadow: 0 20px 40px rgba(138, 43, 226, 0.3);
+        }
+
+        .service-icon {
+            font-size: 3.5rem;
+            margin-bottom: 1.5rem;
+            text-align: center;
+        }
+
+        .service-title {
+            font-size: 2.2rem;
+            margin-bottom: 1.2rem;
+            color: #fff;
+            text-shadow: 0 0 10px var(--color-purple-glow);
+        }
+
+        .service-description {
+            color: var(--color-text-secondary);
+            line-height: 1.7;
+            margin-bottom: 2rem;
+            flex-grow: 1;
+        }
+
+        .service-features {
+            list-style: none;
+            margin-bottom: 2.5rem;
+            padding-left: 1rem;
+        }
+
+        .service-features li {
+            margin-bottom: 0.8rem;
+            padding-left: 1.5rem;
+            position: relative;
+            color: var(--color-text);
+        }
+
+        .service-features li:before {
+            content: "✓";
+            color: var(--color-purple-bright);
+            position: absolute;
+            left: 0;
+            font-weight: bold;
+        }
+
+        .service-price {
+            font-size: 2.8rem;
+            font-weight: 800;
+            color: var(--color-purple-bright);
+            margin-bottom: 0.5rem;
+            text-shadow: 0 0 15px var(--color-purple-glow);
+        }
+
+        .service-period {
+            font-size: 1.1rem;
+            color: var(--color-text-secondary);
+            margin-bottom: 1.8rem;
+        }
+
+        /* Кнопки */
+        .btn-primary, .btn-secondary {
+            display: block;
+            width: 100%;
+            padding: 1.2rem;
+            border: none;
+            border-radius: 12px;
+            font-size: 1.3rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-align: center;
+            text-decoration: none;
+            letter-spacing: 1px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--color-purple) 0%, #6a11cb 100%);
+            color: white;
+            box-shadow: 0 5px 20px rgba(138, 43, 226, 0.4);
+        }
+
+        .btn-primary:hover {
+            transform: scale(1.03);
+            box-shadow: 0 8px 30px rgba(138, 43, 226, 0.7);
+            letter-spacing: 1.5px;
+        }
+
+        .btn-secondary {
+            background: transparent;
+            color: var(--color-purple-bright);
+            border: 2px solid var(--color-purple);
+            margin-top: 1rem;
+        }
+
+        .btn-secondary:hover {
+            background: rgba(138, 43, 226, 0.1);
+            transform: scale(1.03);
+        }
+
+        footer {
+            text-align: center;
+            padding: 2rem;
+            border-top: 1px solid rgba(138, 43, 226, 0.3);
+            margin-top: 3rem;
+            color: var(--color-text-secondary);
+            font-size: 0.95rem;
+        }
+
+        /* ===== СТРАНИЦА ПРИВАТНОГО МОДА ===== */
+        .page-header {
+            text-align: center;
+            margin-bottom: 3rem;
+            padding-bottom: 2rem;
+            border-bottom: 2px solid rgba(138, 43, 226, 0.3);
+        }
+
+        .page-header h1 {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            background: linear-gradient(to right, #fff, var(--color-purple-bright));
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            text-shadow: 0 0 15px var(--color-purple-glow);
+        }
+
+        .page-description {
+            text-align: center;
+            font-size: 1.3rem;
+            color: var(--color-text-secondary);
+            max-width: 800px;
+            margin: 0 auto 3rem auto;
+            line-height: 1.7;
+        }
+
+        .selected-service {
+            background: rgba(157, 78, 221, 0.1);
+            padding: 1.5rem;
+            border-radius: 15px;
+            margin: 2rem 0;
+            border-left: 5px solid var(--color-purple);
+            max-width: 800px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .page-content {
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+
+        /* Стили для двухколоночного списка возможностей */
+        .features-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+            margin-bottom: 3rem;
+        }
+
+        @media (max-width: 768px) {
+            .features-grid {
+                grid-template-columns: 1fr;
+                gap: 1.5rem;
+            }
+        }
+
+        .feature-column {
+            list-style: none;
+            padding-left: 0;
+            margin: 0;
+        }
+
+        .feature-column li {
+            margin-bottom: 1rem;
+            padding-left: 0;
+            display: flex;
+            align-items: flex-start;
+            line-height: 1.5;
+            color: var(--color-text);
+            font-size: 1.1rem;
+        }
+
+        .feature-column li .emoji {
+            margin-right: 12px;
+            font-size: 1.3rem;
+            min-width: 30px;
+        }
+
+        .section-title {
+            font-size: 1.8rem;
+            color: var(--color-purple-bright);
+            margin: 2.5rem 0 1.5rem 0;
+            border-bottom: 2px solid rgba(138, 43, 226, 0.3);
+            padding-bottom: 0.5rem;
+        }
+
+        /* ===== СТРАНИЦА УСЛУГ РАЗРАБОТЧИКА ===== */
+        .process-steps {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin: 2rem 0;
+        }
+
+        .step {
+            background: rgba(26, 11, 46, 0.5);
+            border-radius: 15px;
+            padding: 1.5rem;
+            border: 1px solid rgba(138, 43, 226, 0.2);
+            text-align: center;
+        }
+
+        .step-number {
+            display: inline-block;
+            width: 40px;
+            height: 40px;
+            background: var(--color-purple);
+            color: white;
+            border-radius: 50%;
+            line-height: 40px;
+            font-weight: bold;
+            margin-bottom: 1rem;
+        }
+
+        /* ===== СТРАНИЦА ОПЛАТЫ ===== */
+        .payment-page .container {
+            max-width: 700px;
+        }
+
+        .requisites {
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 15px;
+            padding: 2rem;
+            margin: 2.5rem 0;
+            border-left: 5px solid var(--color-purple);
+        }
+
+        .requisites-title {
+            font-size: 1.2rem;
+            color: var(--color-text-secondary);
+            margin-bottom: 0.8rem;
+        }
+
+        .requisites-value {
+            font-size: 2rem;
+            font-family: 'Courier New', monospace;
+            color: #fff;
+            word-break: break-all;
+            text-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
+            margin-bottom: 1.5rem;
+        }
+
+        .requisites-bank {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 1rem;
+            font-size: 2rem;
+            color: #4CAF50;
+            font-weight: bold;
+        }
+
+        .instruction-box {
+            background: rgba(26, 11, 46, 0.5);
+            border-radius: 15px;
+            padding: 2rem;
+            margin-top: 2rem;
+            border: 1px solid rgba(138, 43, 226, 0.3);
+        }
+
+        .instruction-box h3 {
+            color: var(--color-purple-bright);
+            margin-bottom: 1.2rem;
+            font-size: 1.5rem;
+        }
+
+        .instruction-box ol {
+            padding-left: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .instruction-box li {
+            margin-bottom: 0.8rem;
+            line-height: 1.6;
+        }
+
+        /* Адаптивность */
+        @media (max-width: 768px) {
+            .loader-title { font-size: 3rem; }
+            .loader-subtitle { font-size: 1.3rem; }
+            .studio-name h1 { font-size: 2rem; }
+            .services { grid-template-columns: 1fr; }
+            .service-title { font-size: 1.8rem; }
+            .service-price { font-size: 2.2rem; }
+            .page-header h1 { font-size: 2.2rem; }
+            .requisites-value { font-size: 1.6rem; }
+            .container { padding: 1.5rem; }
+        }
+    </style>
 </head>
-
 <body>
-
-<!-- Snow -->
-<script>
-  for (let i = 0; i < 40; i++) {
-    let snow = document.createElement("div");
-    snow.className = "snowflake";
-    snow.innerHTML = "❄";
-    snow.style.left = Math.random() * 100 + "vw";
-    snow.style.animationDuration = 5 + Math.random() * 10 + "s";
-    snow.style.fontSize = 10 + Math.random() * 14 + "px";
-    document.body.appendChild(snow);
-  }
-</script>
-
-<!-- HEADER -->
-<header class="fixed top-0 left-0 w-full z-50 bg-black/60 backdrop-blur border-b border-red-800/30">
-  <div class="max-w-7xl mx-auto flex justify-between items-center px-6 py-4">
-    <div class="text-2xl font-black text-red-500">REDJIN RP</div>
-    <nav class="space-x-6 text-sm">
-      <a href="#donate" class="hover:text-red-500 transition">Донат</a>
-      <a href="#ucp" class="hover:text-red-500 transition">Личный кабинет</a>
-    </nav>
-  </div>
-</header>
-
-<!-- HERO -->
-<section class="relative h-screen flex items-center justify-center text-center">
-  <div class="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1606925797300-0b35e9d1794d')] bg-cover bg-center blur-sm"></div>
-  <div class="absolute inset-0 bg-black/70"></div>
-
-  <div class="relative z-10 max-w-3xl px-6">
-    <h1 class="text-5xl md:text-6xl font-black text-red-500 mb-6 neon">
-      REDJIN RP
-    </h1>
-    <p class="text-gray-300 mb-10">
-      Премиальный GTA RolePlay проект в тёмно-красном стиле.  
-      Атмосфера. Качество. Уникальный RP.
-    </p>
-
-    <div class="flex flex-col md:flex-row gap-4 justify-center">
-      <a href="https://vk.com/@svircutq" target="_blank"
-         class="px-8 py-4 bg-red-600 hover:bg-red-700 rounded-lg neon transition">
-        Связаться с владельцем
-      </a>
-
-      <button onclick="openModal('infoModal')"
-        class="px-8 py-4 border border-red-600 hover:bg-red-600/20 rounded-lg transition">
-        Информация о проекте
-      </button>
-
-      <button onclick="openModal('downloadModal')"
-        class="px-8 py-4 bg-red-900 hover:bg-red-700 rounded-lg transition">
-        Скачать игру
-      </button>
-    </div>
-  </div>
-</section>
-
-<!-- DONATE -->
-<section id="donate" class="py-24 px-6">
-  <div class="max-w-4xl mx-auto glass rounded-xl p-8">
-    <h2 class="text-3xl font-bold text-red-500 mb-6">Авто-донат</h2>
-
-    <div class="grid md:grid-cols-3 gap-4">
-      <input placeholder="Никнейм" class="bg-black/40 p-3 rounded border border-red-800">
-      <input placeholder="Сумма ₽" class="bg-black/40 p-3 rounded border border-red-800">
-      <select class="bg-black/40 p-3 rounded border border-red-800">
-        <option>Redjin RP | Server 1</option>
-      </select>
+    <!-- ЗАГРУЗОЧНЫЙ ЭКРАН -->
+    <div id="loader">
+        <div class="loader-subtitle">Загрузка</div>
+        <div class="loader-title">DELVIZZ<br>STUDIO</div>
+        <div class="spinner"></div>
+        <div class="loading-messages">
+            <div class="loading-message">Инициализация ядра мода...</div>
+            <div class="loading-message">Проверяем хостинги сайта...</div>
+            <div class="loading-message">Еще чуть-чуть...</div>
+            <div class="loading-message">Готово! Добро пожаловать.</div>
+        </div>
     </div>
 
-    <button class="mt-6 px-6 py-3 bg-red-600 rounded hover:bg-red-700 transition neon">
-      Перейти к оплате
-    </button>
+    <!-- ГЛАВНАЯ СТРАНИЦА -->
+    <div id="main-page" class="page active">
+        <div class="container">
+            <header>
+                <div class="logo-section">
+                    <img src="studio_avatar.jpg" alt="Аватар DELVIZZ STUDIO" class="avatar" id="studioAvatar">
+                    <div class="studio-name">
+                        <h1>DELVIZZ STUDIO</h1>
+                        <p>Моды и разработка для Radmir RP</p>
+                    </div>
+                </div>
+            </header>
 
-    <p class="text-xs text-gray-400 mt-4">
-      * Интеграция UnitPay / AnyPay подключается через API
-    </p>
-  </div>
-</section>
+            <main>
+                <section class="services">
+                    <!-- Карточка 1: Приватный мод -->
+                    <div class="service-card">
+                        <div class="service-icon">🎮</div>
+                        <h2 class="service-title">Приватный мод DELVIZZ 8.0</h2>
+                        <p class="service-description">
+                            Полный доступ к приватному моду последней версии. Оптимизированная производительность, уникальные функции, регулярные обновления и техническая поддержка.
+                        </p>
+                        <ul class="service-features">
+                            <li>Полная переработка интерфейса</li>
+                            <li>Улучшенная защита от обнаружения</li>
+                            <li>Эксклюзивные скрипты и функции</li>
+                            <li>Поддержка 24/7 в закрытом чате</li>
+                            <li>Пожизненные обновления</li>
+                        </ul>
+                        <div class="service-price">800₽</div>
+                        <div class="service-period">Одноразовый платёж • Пожизненный доступ</div>
+                        <button class="btn-primary open-page" data-page="mod-page">
+                            Подробнее и покупка
+                        </button>
+                    </div>
 
-<!-- UCP -->
-<section id="ucp" class="py-24 px-6 bg-black/40">
-  <div class="max-w-6xl mx-auto">
-    <h2 class="text-3xl font-bold text-red-500 mb-8">Личный кабинет</h2>
+                    <!-- Карточка 2: Услуги разработчика -->
+                    <div class="service-card">
+                        <div class="service-icon">💻</div>
+                        <h2 class="service-title">Услуги разработчика</h2>
+                        <p class="service-description">
+                            Индивидуальная разработка скриптов, модов и решений для Radmir RP под ваши задачи. Кастомизация, создание уникальных функций и интеграций.
+                        </p>
+                        <ul class="service-features">
+                            <li>Разработка индивидуальных скриптов</li>
+                            <li>Кастомизация существующих модов</li>
+                            <li>Создание уникальных функций</li>
+                            <li>Техническая поддержка и консультации</li>
+                            <li>Интеграция с внешними сервисами</li>
+                        </ul>
+                        <div class="service-price">1500₽</div>
+                        <div class="service-period">В месяц • Подписка</div>
+                        <button class="btn-primary open-page" data-page="developer-page">
+                            Подробнее и заказ
+                        </button>
+                        <button class="btn-secondary open-page" data-page="payment-page" data-service="developer" data-price="1500" data-period="в месяц">
+                            Только оплата подписки
+                        </button>
+                    </div>
+                </section>
+            </main>
 
-    <div class="grid md:grid-cols-4 gap-6">
-      <div class="glass p-6 rounded-xl">💰 Деньги<br><b>$1 250 000</b></div>
-      <div class="glass p-6 rounded-xl">⭐ Уровень<br><b>15</b></div>
-      <div class="glass p-6 rounded-xl">🚗 Машина<br><b>BMW M5</b></div>
-      <div class="glass p-6 rounded-xl">💼 Работа<br><b>Бизнесмен</b></div>
+            <footer>
+                <p>© 2023-2025 DELVIZZ STUDIO. Все права защищены.</p>
+                <p>Контакты: support@delvizz-studio.ru | Телеграм: @delvizz_support</p>
+            </footer>
+        </div>
     </div>
-  </div>
-</section>
 
-<!-- INFO MODAL -->
-<div id="infoModal" class="modal fixed inset-0 bg-black/70 flex items-center justify-center z-50">
-  <div class="glass p-8 rounded-xl max-w-lg w-full">
-    <h3 class="text-2xl text-red-500 mb-4">О проекте Redjin RP</h3>
-    <ul class="space-y-2 text-gray-300">
-      <li>• Уникальная RP-экономика</li>
-      <li>• Активная администрация</li>
-      <li>• Частые обновления</li>
-      <li>• IP сервера: 127.0.0.1</li>
-    </ul>
-    <button onclick="closeModal('infoModal')" class="mt-6 text-red-500">Закрыть</button>
-  </div>
-</div>
+    <!-- СТРАНИЦА ПРИВАТНОГО МОДА -->
+    <div id="mod-page" class="page">
+        <div class="container">
+            <button class="back-button">Назад</button>
+            
+            <div class="page-header">
+                <h1>Приватный мод DELVIZZ 8.0</h1>
+                <p>Полная версия приватного мода с эксклюзивными функциями для Radmir RP</p>
+            </div>
 
-<!-- DOWNLOAD MODAL -->
-<div id="downloadModal" class="modal fixed inset-0 bg-black/70 flex items-center justify-center z-50">
-  <div class="glass p-8 rounded-xl max-w-md w-full">
-    <h3 class="text-2xl text-red-500 mb-6">Скачать игру</h3>
+            <div class="selected-service">
+                <strong>Выбранная услуга:</strong> Приватный мод DELVIZZ 8.0<br>
+                <strong>Стоимость:</strong> 800₽ (одноразовый платёж)<br>
+                <strong>Доступ:</strong> Пожизненный + все обновления
+            </div>
 
-    <a href="https://disk.yandex.ru/d/tHsRntPK2gqyoA" target="_blank"
-       class="block mb-4 px-6 py-3 bg-red-600 rounded text-center hover:bg-red-700 transition">
-      Скачать для PC
-    </a>
+            <div class="page-content">
+                <h2 class="section-title">😀 В моде доступно:</h2>
+                <div class="features-grid">
+                    <ul class="feature-column">
+                        <li><span class="emoji">👩‍💻</span> ФУЛЛ ФСБ</li>
+                        <li><span class="emoji">👩‍💻</span> ФУЛЛ /mn</li>
+                        <li><span class="emoji">👩‍💻</span> Ежедневные награды</li>
+                        <li><span class="emoji">👩‍💻</span> Все скины и машины открыты</li>
+                        <li><span class="emoji">👩‍💻</span> donatemenu</li>
+                        <li><span class="emoji">👩‍💻</span> Захват особняков</li>
+                        <li><span class="emoji">👩‍💻</span> Работы (Пилот ✈️, ТК 🚛, автобусник)</li>
+                    </ul>
+                    <ul class="feature-column">
+                        <li><span class="emoji">👩‍💻</span> Новые штраф-стоянки как на RADMIR GAMES</li>
+                        <li><span class="emoji">👩‍💻</span> Все винилы</li>
+                        <li><span class="emoji">👩‍💻</span> Голосовой чат 🎙</li>
+                        <li><span class="emoji">👩‍💻</span> Новая авторизация 🔐</li>
+                        <li><span class="emoji">👩‍💻</span> Магазин оружия (фулл работает 🔫)</li>
+                        <li><span class="emoji">👩‍💻</span> Магнитола 🎶</li>
+                    </ul>
+                </div>
 
-    <div class="px-6 py-3 bg-gray-600/40 rounded text-center text-gray-400 cursor-not-allowed">
-      Скачать для MOBILE<br>
-      <span class="text-xs">Временно недоступно</span>
+                <h2 class="section-title">😀 Новое в версии 8.0:</h2>
+                <div class="features-grid">
+                    <ul class="feature-column">
+                        <li><span class="emoji">👩‍💻</span> Прослушка (рация, телефон) 📡</li>
+                        <li><span class="emoji">👩‍💻</span> Глушилка 📵</li>
+                        <li><span class="emoji">👩‍💻</span> Новые автомобили из обновления 8.0</li>
+                        <li><span class="emoji">👩‍💻</span> Новые внешности из обновления 8.0</li>
+                        <li><span class="emoji">👩‍💻</span> Новый кейс "Мандариновый" 💼</li>
+                        <li><span class="emoji">👩‍💻</span> Новый кейс "Бандитский" 💼</li>
+                    </ul>
+                    <ul class="feature-column">
+                        <li><span class="emoji">👩‍💻</span> Новые винилы из обновления 8.0</li>
+                        <li><span class="emoji">👩‍💻</span> Новая зимняя-лавка ❄️</li>
+                        <li><span class="emoji">👩‍💻</span> Новый BatlePass 8.0 🍬</li>
+                        <li><span class="emoji">👩‍💻</span> Добавлен новый ТЮНИНГ и обновлён на все автомобили 🚘</li>
+                    </ul>
+                </div>
+
+                <div style="text-align: center; margin-top: 3rem;">
+                    <button class="btn-primary open-page" data-page="payment-page" data-service="Приватный мод DELVIZZ 8.0" data-price="800" data-period="одноразовый платёж" style="max-width: 400px; margin: 0 auto;">
+                        Купить за 800₽
+                    </button>
+                </div>
+            </div>
+        </div>
     </div>
 
-    <button onclick="closeModal('downloadModal')" class="mt-6 text-red-500">Закрыть</button>
-  </div>
-</div>
+    <!-- СТРАНИЦА УСЛУГ РАЗРАБОТЧИКА -->
+    <div id="developer-page" class="page">
+        <div class="container">
+            <button class="back-button">Назад</button>
+            
+            <div class="page-header">
+                <h1>Услуги разработчика</h1>
+                <p>Индивидуальная разработка и кастомизация под ваши задачи</p>
+            </div>
 
-<!-- MODAL SCRIPT -->
-<script>
-  function openModal(id) {
-    document.getElementById(id).classList.add('active');
-  }
-  function closeModal(id) {
-    document.getElementById(id).classList.remove('active');
-  }
-</script>
+            <div class="selected-service">
+                <strong>Выбранная услуга:</strong> Услуги разработчика<br>
+                <strong>Стоимость:</strong> 1500₽ (в месяц)<br>
+                <strong>Формат:</strong> Подписка с ежемесячной оплатой
+            </div>
 
+            <div class="page-content">
+                <h2 class="section-title">🛠️ Что входит в услугу</h2>
+                <ul class="service-features">
+                    <li><strong>Индивидуальные скрипты</strong> — разработка с нуля под ваши требования</li>
+                    <li><strong>Модификация модов</strong> — доработка существующих решений</li>
+                    <li><strong>Уникальные функции</strong> — создание эксклюзивного функционала</li>
+                    <li><strong>Техническая поддержка</strong> — консультации и помощь в настройке</li>
+                    <li><strong>Интеграции</strong> — подключение к API, базам данных</li>
+                    <li><strong>Оптимизация</strong> — улучшение производительности ваших проектов</li>
+                </ul>
+
+                <h2 class="section-title">📅 Процесс работы</h2>
+                <div class="process-steps">
+                    <div class="step">
+                        <div class="step-number">1</div>
+                        <h3>Обсуждение</h3>
+                        <p>Обсуждение задачи и технических требований</p>
+                    </div>
+                    <div class="step">
+                        <div class="step-number">2</div>
+                        <h3>Согласование</h3>
+                        <p>Согласование сроков и стоимости</p>
+                    </div>
+                    <div class="step">
+                        <div class="step-number">3</div>
+                        <h3>Разработка</h3>
+                        <p>Разработка и тестирование решения</p>
+                    </div>
+                    <div class="step">
+                        <div class="step-number">4</div>
+                        <h3>Сдача</h3>
+                        <p>Сдача работы и обучение использованию</p>
+                    </div>
+                    <div class="step">
+                        <div class="step-number">5</div>
+                        <h3>Поддержка</h3>
+                        <p>Техподдержка в течение всего периода подписки</p>
+                    </div>
+                </div>
+
+                <div style="text-align: center; margin-top: 3rem;">
+                    <button class="btn-primary open-page" data-page="payment-page" data-service="Услуги разработчика" data-price="1500" data-period="в месяц" style="max-width: 400px; margin: 0 auto;">
+                        Заказать за 1500₽/мес
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- СТРАНИЦА ОПЛАТЫ -->
+    <div id="payment-page" class="page payment-page">
+        <div class="container">
+            <button class="back-button">Назад</button>
+            
+            <div class="page-header">
+                <h1>Оплата услуги</h1>
+                <p>Для завершения заказа выполните перевод по указанным ниже реквизитам</p>
+            </div>
+
+            <div class="selected-service" id="paymentDetails">
+                <!-- Сюда JS подставит данные о выбранной услуге -->
+            </div>
+
+            <div class="requisites">
+                <div class="requisites-title">Номер карты:</div>
+                <div class="requisites-value">2202 2083 7492 2970</div>
+
+                <div class="requisites-title">Банк:</div>
+                <div class="requisites-bank">
+                    <span>СБЕР</span>
+                    <span>💸</span>
+                </div>
+            </div>
+
+            <div class="instruction-box">
+                <h3>Инструкция по оплате:</h3>
+                <ol>
+                    <li>Откройте приложение вашего банка.</li>
+                    <li>Выберите перевод по номеру карты.</li>
+                    <li>Введите номер карты: <strong>2202 2083 7492 2970</strong>.</li>
+                    <li>Сумма: <strong id="paymentAmount">800</strong> рублей.</li>
+                    <li>В комментарии укажите: "<em id="paymentComment">Оплата мода DELVIZZ 8.0</em>".</li>
+                    <li>После перевода отправьте скриншот чека в <strong>Telegram: @delvizz_support</strong> для активации/начала работы.</li>
+                </ol>
+                <p><strong>Внимание:</strong> Для услуг разработчика оплата происходит ежемесячно. Доступ предоставляется на 30 дней с момента оплаты.</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // === Управление загрузочным экраном ===
+        window.addEventListener('load', function() {
+            const loader = document.getElementById('loader');
+            
+            setTimeout(() => {
+                loader.classList.add('hidden');
+                setTimeout(() => {
+                    loader.style.display = 'none';
+                    // Показываем главную страницу после загрузки
+                    showPage('main-page');
+                }, 800);
+            }, 3500);
+        });
+
+        // === Глобальные переменные для хранения выбранной услуги ===
+        let currentService = {
+            name: 'Приватный мод DELVIZZ 8.0',
+            price: '800',
+            period: 'одноразовый платёж'
+        };
+
+        // === Функция для показа страницы ===
+        function showPage(pageId) {
+            // Скрываем все страницы
+            document.querySelectorAll('.page').forEach(page => {
+                page.classList.remove('active');
+            });
+            
+            // Показываем выбранную страницу
+            const targetPage = document.getElementById(pageId);
+            if (targetPage) {
+                targetPage.classList.add('active');
+                
+                // Если это страница оплаты, обновляем данные
+                if (pageId === 'payment-page') {
+                    updatePaymentPage();
+                }
+                
+                // Прокручиваем наверх
+                window.scrollTo(0, 0);
+            }
+        }
+
+        // === Функция обновления страницы оплаты ===
+        function updatePaymentPage() {
+            const paymentDetails = document.getElementById('paymentDetails');
+            const paymentAmount = document.getElementById('paymentAmount');
+            const paymentComment = document.getElementById('paymentComment');
+            
+            if (paymentDetails && paymentAmount && paymentComment) {
+                paymentDetails.innerHTML = `
+                    <strong>Услуга:</strong> ${currentService.name}<br>
+                    <strong>Стоимость:</strong> ${currentService.price}₽ ${currentService.period}<br>
+                    <strong>Формат:</strong> ${currentService.period === 'одноразовый платёж' ? 'Разовая покупка' : 'Ежемесячная подписка'}
+                `;
+                
+                paymentAmount.textContent = currentService.price;
+                paymentComment.textContent = `Оплата: ${currentService.name}`;
+            }
+        }
+
+        // === Обработчики для кнопок навигации ===
+        document.addEventListener('DOMContentLoaded', function() {
+            // Кнопки открытия страниц
+            document.querySelectorAll('.open-page').forEach(button => {
+                button.addEventListener('click', function() {
+                    const pageId = this.getAttribute('data-page');
+                    
+                    // Сохраняем данные услуги, если они указаны
+                    if (this.getAttribute('data-service')) {
+                        currentService = {
+                            name: this.getAttribute('data-service'),
+                            price: this.getAttribute('data-price'),
+                            period: this.getAttribute('data-period')
+                        };
+                    }
+                    
+                    // Показываем нужную страницу
+                    showPage(pageId);
+                });
+            });
+
+            // Кнопки Назад
+            document.querySelectorAll('.back-button').forEach(button => {
+                button.addEventListener('click', function() {
+                    showPage('main-page');
+                });
+            });
+
+            // Обработка аватарки
+            const avatarImg = document.getElementById('studioAvatar');
+            if (avatarImg) {
+                avatarImg.onerror = function() {
+                    this.src = 'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="80" height="80" viewBox="0 0 80 80"><rect width="80" height="80" rx="40" fill="%2348127a"/><text x="40" y="45" font-family="Arial" font-size="28" fill="white" text-anchor="middle" dominant-baseline="middle">DS</text></svg>';
+                    this.alt = 'Аватар не загружен';
+                };
+            }
+        });
+
+        // === Поддержка истории браузера ===
+        window.addEventListener('popstate', function(event) {
+            // Если в истории есть состояние, показываем соответствующую страницу
+            if (event.state && event.state.page) {
+                showPage(event.state.page);
+            } else {
+                showPage('main-page');
+            }
+        });
+
+        // Функция для обновления истории браузера
+        function updateHistory(pageId) {
+            const pageTitle = getPageTitle(pageId);
+            document.title = `${pageTitle} | DELVIZZ STUDIO`;
+            
+            history.pushState({ page: pageId }, pageTitle, `#${pageId}`);
+        }
+
+        // Функция для получения заголовка страницы
+        function getPageTitle(pageId) {
+            const titles = {
+                'main-page': 'Главная',
+                'mod-page': 'Приватный мод',
+                'developer-page': 'Услуги разработчика',
+                'payment-page': 'Оплата'
+            };
+            return titles[pageId] || 'DELVIZZ STUDIO';
+        }
+    </script>
 </body>
 </html>
